@@ -1,0 +1,25 @@
+{
+    "name": "nmo",
+    "displayName": "nmo",
+    "description": "Novus Modus Operandi",
+    "version": "0.0.1",
+    "engines": {
+        "vscode": "^1.47.0"
+    },
+    "categories": [
+        "Programming Languages"
+    ],
+    "contributes": {
+        "languages": [{
+            "id": "nmo",
+            "aliases": ["Novus Modus Operandi", "nmo"],
+            "extensions": [".nmo",".txt.nmo"],
+            "configuration": "./language-configuration.json"
+        }],
+        "grammars": [{
+            "language": "nmo",
+            "scopeName": "source.nmo",
+            "path": "./syntaxes/nmo.tmLanguage.json"
+        }]
+    }
+}

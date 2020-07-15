@@ -1,0 +1,17 @@
+section header
+id-urn: company/project/example123
+require-sections: [ header 0.5,views 0.5,tag-descriptions 0.5,brushes 0.5,brushstrokes 0.5 ]
+prefixes: [ github https://github.com/ ]
+name en: example123
+title en: some relevant title
+license en: No Rights Reserved (CC0)
+attribution-name en: Public domain
+author en: Public domain
+description en: some description
+license-url html en: https://creativecommons.org/share-your-work/public-domain/cc0/
+author-url html en: https://your-personal-website.com/profile
+attribution-url html en: https://your-personal-website.com/profile
+homepage-url html en: https://your-personal-website.com/homepage
+repository-url html en: https://your-personal-website.com/sourcecode
+copyright-year: 2020
+--------
