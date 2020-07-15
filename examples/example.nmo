@@ -15,3 +15,18 @@ homepage-url html en: https://your-personal-website.com/homepage
 repository-url html en: https://your-personal-website.com/sourcecode
 copyright-year: 2020
 --------
+section fragments
+fragment rdf marker-> rdf:
+fragment numbertext enum -> one two three | thousand million | infinity
+fragment posdecimal int ->  0 < _ <= 21 and multipleOf 3 and _ != 6 and zeropad 2
+fragment fract14 fraction -> -1/4 < _ <= 1/4
+fragment timerange tuple[time, time] -> a < b
+fragment bizemail email -> endswith biz@com and minlength 10 and maxlength 50
+fragment functionname string -> az then AZ az 09 - _
+--------
+section complex-types
+
+complex-type my-complex-type -> !rdf functionname numbertext posdecimal fract14 timerange bizemail functionname
+
+
+
