@@ -14,19 +14,33 @@ attribution-url html en: https://your-personal-website.com/profile
 homepage-url html en: https://your-personal-website.com/homepage
 repository-url html en: https://your-personal-website.com/sourcecode
 copyright-year: 2020
+require-types: [ marker, enum, int, float, fraction, time, email, idstring, freetext, csvenum]
+require-generators: [ elm-string-serializer, python-string-serializer, python-string-validator, slack-ui, vscode-syntax ]
+
 --------
 section fragments
-fragment rdf marker-> rdf:
-fragment numbertext enum -> one two three | thousand million | infinity
-fragment posdecimal int ->  0 < _ <= 21 and multipleOf 3 and _ != 6 and zeropad 2
-fragment fract14 fraction -> -1/4 < _ <= 1/4
-fragment timerange tuple[time, time] -> a < b
-fragment bizemail email -> endswith biz@com and minlength 10 and maxlength 50
-fragment functionname string -> az then AZ az 09 - _
+fragment rdf marker opts [] constraints [ rdf: ] ->
+fragment numbert-ext enum opts [ editable ] constraints [ one two three || thousand million || infinity ] -> description of numbertext
+fragment pos-decimal int opts [ write-once]  constraints [ 0 < _ <= 21 || multipleOf 3 and _ != 6 || zeropad 2 ] -> description
+fragment pos-floats set[float] opts [ write-once]  constraints [ 0 < _ <= 100.00 ] -> description
+fragment fract14 fraction opts [] constraints [ -1/4 < _ <= 1/4 ] -> description
+fragment time-range tuple[time, time] opts [] constraints [ a < b ] -> description
+fragment biz-email email opts [ remote-check ] constraints [ endswith biz@com || minlength 10 || maxlength 50 ]-> description
+fragment function-name idstring opts [ key] constraints [ maxlength 20 ] charexp az followedby [ AZ az 09 - _ ] -> description
+fragment uk-emails list[email] opts [ hash:sha-256] constraints [ endswith @co.uk || minitems 1 || maxitems 50 || uniq ] -> description
+fragment doc-description freetext ops [] constraints [ minlength 1 || maxlength 500 || multiplelines ]-> one language
+fragment doc-title l18n[freetext] ops [] constraints [ minlength 1 || maxlength 500 || singleline ]-> multiple languages
+fragment country csvenum opts [ read-once ] constraints [ filename csvfile:country.csv || col 2 || description 3 ]-> multiple languages
+
 --------
-section complex-types
+section chunks
 
-complex-type my-complex-type -> !rdf functionname numbertext posdecimal fract14 timerange bizemail functionname
+chunk alpha opts [ monthly-write hourly-read] constraints [ separator space ] expr rdf function-name number-text pos-decimal end -> description
+chunk beta opts [optimize:speed] constraints [ separator semicolon ] expr fract14 time-range biz-email function-name alpha beta end -> description
 
+--------
+section accessors
+
+accessor read-config-alpha opts [ elm-string-serializer, python-string-serializer, python-string-validator] target alpha
 
 
