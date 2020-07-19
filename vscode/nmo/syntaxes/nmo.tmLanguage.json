@@ -56,7 +56,7 @@
 			"patterns": [
 			  {
 				"name": "markup.heading.1.dlmt",
-				"match": "^(section header|section views|section tag-descriptions|section brushes|section brushstrokes)$"
+				"match": "^(section header|section fragments|section chunks|section accessors)$"
 			  }
 			]
 		  },
@@ -76,15 +76,15 @@
 			"patterns": [
 			  {
 				"name": "keyword.control.dlmt",
-				"match": "^(license|title|description|attribution-name|brushes-license|brushes-attribution-name|name|author) [a-z]{2}(-[a-z]{2})?:"
+				"match": "^(license|title|description|attribution-name|name|author) [a-z]{2}(-[a-z]{2})?:"
 			  },
 			  {
 				"name": "keyword.control.dlmt",
-				"match": "^(id-urn|require-sections|page-coordinate-system|page-ratio|brush-coordinate-system|brush-ratio|brush-page-ratio|prefixes|copyright-year|is-family-friendly|has-parts):"
+				"match": "^(id-urn|require-sections|prefixes|copyright-year|require-types|require-generators):"
 			  },
 			  {
 				"name": "keyword.control.dlmt",
-				"match": "^(attribution-url|license-url|brushes-attribution-url|brushes-license-url|metadata-url|homepage-url|content-url|author-url|repository-url|thumbnail-url) (html|json|json-ld|markdown|rdf|nt|ttl|dlmt|csv) [a-z]{2}(-[a-z]{2})?:"
+				"match": "^(attribution-url|license-url|metadata-url|homepage-url|content-url|author-url|repository-url) (html|json|json-ld|markdown|rdf|nt|ttl|csv) [a-z]{2}(-[a-z]{2})?:"
 			  }
 			]
 		  },
@@ -92,15 +92,28 @@
 			"patterns": [
 			  {
 				"name": "entity.name.class.dlmt",
-				"match": "\\b(tag|brushstroke|brush|view)\\b"
+				"match": "\\b(fragment|chunk|accessor)\\b"
 			  }
 			]
 		  },
 		  "attributes": {
 			"patterns": [{
 				"name": "entity.name.tag.dlmt",
-				"match": "\\b(lang|xy|width|height|scale|angle|tags|system|cartesian|right-dir|up-dir|origin-x|origin-y|same-as|ext-id|path|flags)\\b"
-			}]
+				"match": "\\b(constraints|values|expr|end)\\b"
+			},
+			{
+				"name": "entity.name.tag.dlmt",
+				"match": "\\b(editable|read-once|write-once|multipleof|zeropad|remote-check|startswith|endswith|minlength|maxlength|followedby|charexp|hash:sha-256|minitems|uniq|singleline|multiplelines|filename|valuecol|titlecol|optimize:speed|separator)\\b"
+			},
+			{
+				"name": "entity.name.tag.dlmt",
+				"match": "\\b(hourly-write|daily-write|monthly-write|hourly-read|daily-read|monthly-read)\\b"
+			},
+			{
+				"name": "entity.name.tag.dlmt",
+				"match": "\\b(marker|enum|int|float|fraction|time|email|idstring|freetext|csvenum)\\b"
+			}
+			]
 		}
 	},
 	"scopeName": "source.nmo"

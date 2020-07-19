@@ -39,6 +39,8 @@ class NMOHeaders:
         self.id_urn = ""
         self.prefixes = { "github": "https://github.com/" }
         self.require_sections  = {i: "0.5" for i in ["header", "fragments", "chunks", "accessors"]}
+        self.require_types  = set(["enum", "int", "float", "fraction" ])
+        self.require_generators  = set(["elm-string-serializer", "python-string-serializer"])
         self.url_refs = { }
         self.text_refs = { }
         self.copyright_year = 3000
@@ -57,6 +59,14 @@ class NMOHeaders:
 
     def set_require_sections(self, sections: Dict[str, str]):
         self.require_sections = sections
+        return self
+
+    def set_require_types(self, require_types: Set[str]):
+        self.require_types = require_types
+        return self
+    
+    def set_require_generators(self, require_generators: Set[str]):
+        self.require_generators = require_generators
         return self
 
     def set_url(self, name: str, media_type: str, lang: str, url: str):
@@ -88,6 +98,10 @@ class NMOHeaders:
                 result.set_prefixes(parse_bracket_dict(value))
             elif key == "require-sections":
                 result.set_require_sections(parse_bracket_dict(value))
+            elif key == "require-types":
+                result.set_require_types(set(parse_bracket_array(value)))
+            elif key == "require-generators":
+                result.set_require_generators(set(parse_bracket_array(value)))
             elif key.count(" ") == 1:
                 name, lang = key.split()
                 if name in ["license", "attribution-name", "author", "name" ,"title", "description", "alternative-title"]:
@@ -105,6 +119,8 @@ class NMOHeaders:
         results = []
         results.append("id-urn: {}".format(self.id_urn))
         results.append("require-sections: {}".format(to_bracket_dict(self.require_sections)))
+        results.append("require-types: {}".format(to_bracket_array(sorted(list(self.require_types)))))
+        results.append("require-generators: {}".format(to_bracket_array(sorted(list(self.require_generators)))))
         results.append("prefixes: {}".format(to_bracket_dict(self.prefixes)))
         for keydata, value in self.text_refs.items():
             results.append("{} {}: {}".format(keydata[0], keydata[1], value))
@@ -123,8 +139,8 @@ class NMOHeaders:
         return self.to_string()
     
     def __eq__(self, other):
-        thisone = (self.id_urn, self.copyright_year,  self.prefixes, self.require_sections, self.url_refs, self.text_refs)
-        otherone = (other.id_urn, other.copyright_year, other.prefixes, other.require_sections, other.url_refs, other.text_refs)
+        thisone = (self.id_urn, self.copyright_year,  self.prefixes, self.require_sections, self.url_refs, self.text_refs, self.require_types, self.require_generators)
+        otherone = (other.id_urn, other.copyright_year, other.prefixes, other.require_sections, other.url_refs, other.text_refs, other.require_types, other.require_generators)
         return thisone == otherone
 
     def get_short_prefixes(self)->Set[str]:
