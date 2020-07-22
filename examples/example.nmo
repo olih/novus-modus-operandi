@@ -15,6 +15,10 @@ homepage-url html en: https://your-personal-website.com/homepage
 repository-url html en: https://your-personal-website.com/sourcecode
 copyright-year: 2020
 require-types: [ marker, enum, int, float, fraction, time, email, idstring, freetext, csvenum]
+require-string-constraints: [ starts-with, ends-with, min-length, max-length, char-exp, followed-by, hash:sha-256, single-line, multiple-lines, AZ, az, digit, underscore, dash]
+require-number-constraints: [ multiple-of, zero-pad, a < b, < _ <, < _ <=, <= _ <, <= _ <=]
+require-list-constraints: [ min-items, max-items ]
+require-access-constraints: [ editable, read-once, write-once, remote-check, monthly-write, hourly-read]
 require-generators: [ elm-string-serializer, python-string-serializer, python-string-validator, slack-ui, vscode-syntax ]
 
 --------
