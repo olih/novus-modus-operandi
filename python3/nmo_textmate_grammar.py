@@ -14,60 +14,74 @@ if not (sys.version_info.major == 3 and sys.version_info.minor >= 5):
 def strip_string_array(rawlines: str, sep=",")->List[str]:
     return [line.strip() for line in rawlines.split(sep) if line.strip() != ""]
 
+def escape_re(value: str)->str:
+    return value
+
 class TmLowerDashNameField:
     def __init__(self, name: str):
         self.name = name
         self.match = "[a-z][a-z0-9-]+"
+        self.scope = "variable.parameter"
 
 class TmEnumField:
     def __init__(self, name: str, keywords: List[str]):
         self.name = name
-        self.match = "|".join(sorted(list(set([re.escape(k.strip()) for k in keywords]))))
+        self.match = "|".join(sorted(list(set([escape_re(k.strip()) for k in keywords]))))
+        self.scope = "keyword.control"
 
 class TmLangField:
     def __init__(self, name: str):
         self.name = name
         self.match = "[a-z]{2}(-[a-z]{2, 3})?"
+        self.scope = "constant.other.symbol"
 
 class TmIdentifierField:
     def __init__(self, name: str, value: str):
         self.name = name
-        self.match = re.escape(value)
+        self.match = escape_re(value)
+        self.scope = "entity.name.tag"
 
 class TmPunctuationField:
     def __init__(self, name: str, value: str):
         self.name = name
-        self.match = re.escape(value)
+        self.match = escape_re(value)
+        self.scope = "punctuation.definition.separator"
 
 class TmIntField:
     def __init__(self, name: str):
         self.name = name
         self.match = "[+-]?[0-9]+"
+        self.scope = "constant.numeric"
 
 class TmFloatField:
     def __init__(self, name: str):
         self.name = name
         self.match = "[+-][0-9]+[.][0-9]+"
+        self.scope = "constant.numeric"
 
 class TmFractionField:
     def __init__(self, name: str):
         self.name = name
         self.match = "[+-]?[0-9]+/[1-9][0-9]*"
+        self.scope = "constant.numeric"
 
 class TmUrlField:
     def __init__(self, name: str):
         self.name = name
         self.match = "https?://[^\\s]+"
+        self.scope = "markup.underline.link"
 
 class TmPathField:
     def __init__(self, name: str):
         self.name = name
-        self.match = "[^\\s:,;|@%^&*()[]+=]+"
+        self.match = "[^\\s:,;|@%^&*()+=]+"
+        self.scope = "markup.italic"
 
-class TmEndStringField:
+class TmAnyStringField:
     def __init__(self, name: str):
         self.name = name
-        self.match = ".{2,}$"
+        self.match = ".{2,}"
+        self.scope = "string"
 
 MEDIA_TYPES = ["html","json","json-ld","markdown","rdf","nt","ttl","csv"]
 REQUIRE_TYPES = strip_string_array("marker, enum, int, float, fraction, time, email, idstring, freetext, csvenum")
@@ -75,6 +89,9 @@ REQUIRE_STRING_CONSTRAINTS = strip_string_array("starts-with, ends-with, min-len
 REQUIRE_NUMBER_CONSTRAINTS = strip_string_array("multiple-of, zero-pad, a < b, < _ <, < _ <=, <= _ <, <= _ <=")
 REQUIRE_LIST_CONSTRAINTS = strip_string_array("min-items, max-items")
 REQUIRE_ACCESS_CONSTRAINTS = strip_string_array("editable, read-once, write-once, remote-check, hourly-write, daily-write, monthly-write, hourly-read, daily-read, monthly-read")
+
+def paren(value: str)->str:
+    return "({})".format(value)
 
 class TmFieldRow:
     def __init__(self, name:str):
@@ -100,8 +117,8 @@ class TmFieldRow:
         self.fields.append(TmPunctuationField("colon-separator", ":"))
         return self
 
-    def endstr(self, name: str):
-        self.fields.append(TmEndStringField(name))
+    def anystr(self, name: str):
+        self.fields.append(TmAnyStringField(name))
         return self
     
     def mediatype(self):
@@ -136,6 +153,28 @@ class TmFieldRow:
         self.fields.append(TmIntField(name))
         return self
 
+    def _to_match_rule(self)->str:
+        matches = "[ ]*".join([paren(field.match) for field in self.fields])
+        return "^{}$".format(matches)
+
+    def _to_captures_rule(self, extName: str):
+        result = {}
+        count = 0
+        for field in self.fields:
+            count = count + 1
+            name = "{}.{}".format(field.scope, extName)
+            result[str(count)] = { "name": name}
+
+        return result
+
+    def to_tm_rule(self, extName: str):
+        return {
+            "match": self._to_match_rule(),
+            "captures" : self._to_captures_rule(extName)
+        }
+
+
+
 
 class TmFieldSection:
     def __init__(self, name:str):
@@ -161,35 +200,10 @@ class TmFieldSection:
         self.add_row(row)
         return row
 
-
-headerSection = TmFieldSection("header")
-headerSection.header("section header").id("section header")
-headerSection.row("id-urn").id("id-urn").colon().path("id-path")
-headerSection.row("require-sections").id("require-sections").colon().endstr("require-sections-values")
-headerSection.row("prefixes").id("prefixes").colon().endstr("prefixes-values")
-headerSection.row("name").id("name").lang().colon().endstr("name-value")
-headerSection.row("title").id("title").lang().colon().endstr("title-value")
-headerSection.row("license").id("license").lang().colon().endstr("license-value")
-headerSection.row("attribution-name").id("attribution-name").lang().colon().endstr("attribution-name-value")
-headerSection.row("author").id("author").lang().colon().endstr("author-value")
-headerSection.row("description").id("description").lang().colon().endstr("description-value")
-headerSection.row("license-url").id("license-url").mediatype().lang().colon().url("license-url-value")
-headerSection.row("author-url").id("author-url").mediatype().lang().colon().url("author-url-value")
-headerSection.row("license-url").id("license-url").mediatype().lang().colon().url("license-url-value")
-headerSection.row("attribution-url").id("attribution-url").mediatype().lang().colon().url("attribution-url-value")
-headerSection.row("homepage-url").id("homepage-url").mediatype().lang().colon().url("homepage-url-value")
-headerSection.row("repository-url").id("repository-url").mediatype().lang().colon().url("repository-url-value")
-headerSection.row("copyright-year").id("copyright-year").colon().integer("copyright-year-value")
-headerSection.row("require-types").id("require-types").colon().endstr("require-types-values")
-headerSection.row("require-generators").id("require-generators").colon().endstr("require-generators-values")
-headerSection.row("require-string-constraints").id("require-string-constraints").colon().endstr("require-string-constraints-values")
-headerSection.row("require-number-constraints").id("require-number-constraints").colon().endstr("require-number-constraints-values")
-headerSection.row("require-list-constraints").id("require-list-constraints").colon().endstr("require-list-constraints-values")
-headerSection.row("require-access-constraints").id("require-access-constraints").colon().endstr("require-access-constraints-values")
-
-
-headerSection = TmFieldSection("fragments")
-headerSection.header("section fragments").id("section fragments")
+    def to_tm_patterns(self, extName: str):
+        return {
+            "patterns": [row.to_tm_rule(extName) for row in self.rows]
+        }
 
 class TextMateGrammar:
     def __init__(self):
@@ -211,10 +225,18 @@ class TextMateGrammar:
         self.sections.append(section)
         return self
 
+    def _to_patterns_include(self):
+        return [{"include": "#{}".format(section.name)} for section in self.sections ]
+        
+    def _to_repository(self):
+        return { section.name:section.to_tm_patterns(self.extName) for section in self.sections }
+
     def to_obj(self):
         content = {
             "$schema": self.schema,
             "name": self.name,
+            "patterns": self._to_patterns_include(),
+            "repository": self._to_repository(),
             "scopeName": "source.{}".format(self.extName)
         }
         return content
@@ -228,9 +250,39 @@ class TextMateGrammar:
             json.dump(self.to_obj(), outfile, indent=2)
  
 
+headerSection = TmFieldSection("header")
+headerSection.header("section header").id("section header")
+headerSection.row("id-urn").id("id-urn").colon().path("id-path")
+headerSection.row("require-sections").id("require-sections").colon().anystr("require-sections-values")
+headerSection.row("prefixes").id("prefixes").colon().anystr("prefixes-values")
+headerSection.row("name").id("name").lang().colon().anystr("name-value")
+headerSection.row("title").id("title").lang().colon().anystr("title-value")
+headerSection.row("license").id("license").lang().colon().anystr("license-value")
+headerSection.row("attribution-name").id("attribution-name").lang().colon().anystr("attribution-name-value")
+headerSection.row("author").id("author").lang().colon().anystr("author-value")
+headerSection.row("description").id("description").lang().colon().anystr("description-value")
+headerSection.row("license-url").id("license-url").mediatype().lang().colon().url("license-url-value")
+headerSection.row("author-url").id("author-url").mediatype().lang().colon().url("author-url-value")
+headerSection.row("license-url").id("license-url").mediatype().lang().colon().url("license-url-value")
+headerSection.row("attribution-url").id("attribution-url").mediatype().lang().colon().url("attribution-url-value")
+headerSection.row("homepage-url").id("homepage-url").mediatype().lang().colon().url("homepage-url-value")
+headerSection.row("repository-url").id("repository-url").mediatype().lang().colon().url("repository-url-value")
+headerSection.row("copyright-year").id("copyright-year").colon().integer("copyright-year-value")
+headerSection.row("require-types").id("require-types").colon().anystr("require-types-values")
+headerSection.row("require-generators").id("require-generators").colon().anystr("require-generators-values")
+headerSection.row("require-string-constraints").id("require-string-constraints").colon().anystr("require-string-constraints-values")
+headerSection.row("require-number-constraints").id("require-number-constraints").colon().anystr("require-number-constraints-values")
+headerSection.row("require-list-constraints").id("require-list-constraints").colon().anystr("require-list-constraints-values")
+headerSection.row("require-access-constraints").id("require-access-constraints").colon().anystr("require-access-constraints-values")
+
+
+fragmentsSection = TmFieldSection("fragments")
+fragmentsSection.header("section fragments").id("section fragments")
+
 print("Saving Textmate grammar ...")
 tmg=TextMateGrammar()
 tmg.set_name("Novus Modus Operandi")
 tmg.set_extension("nmo")
 tmg.set_filename("../vscode/nmo/syntaxes/nmo.tmLanguage.json")
+tmg.add_section(headerSection)
 tmg.save()

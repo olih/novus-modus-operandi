@@ -1,120 +1,378 @@
 {
-	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
-	"name": "Novus Modus Operandi",
-	"patterns": [
-		{
-			"include": "#languages"
-		},
-		{
-			"include": "#delimiters"
-		},
-		{
-			"include": "#attributes"
-		},
-		{
-			"include": "#keys"
-		},
-		{
-			"include": "#identifiers"
-		},
-		{
-			"include": "#urls"
-		},
-		{
-			"include": "#classes"
-		},
-		{
-			"include": "#sections"
-		}
-	],
-	"repository": {
-		"urls": {
-			"patterns": [
-			  {
-				"name": "markup.underline.link.dlmt",
-				"match": "\bhttps://[^\\s]+$"
-			  }
-			]
-		  },
-		  "identifiers": {
-			"patterns": [
-			  {
-				"name": "keyword.control.dlmt",
-				"match": "\bi:[0-9]+\b"
-			  }
-			]
-		  },
-		  "languages": {
-			"patterns": [
-			  {
-				"name": "keyword.control.dlmt",
-				"match": "\b(en|fr)-(gb|us|fr)\b"
-			  }
-			]
-		  },
-		"sections": {
-			"patterns": [
-			  {
-				"name": "markup.heading.1.dlmt",
-				"match": "^(section header|section fragments|section chunks|section accessors)$"
-			  }
-			]
-		  },
-		  "delimiters": {
-			"patterns": [
-			  {
-				"name": "markup.heading.1.dlmt",
-				"match": "^--------$"
-			  },
-			  {
-				"name": "markup.heading.1.dlmt",
-				"match": "->"
-			  }
-			]
-		  },
-		"keys": {
-			"patterns": [
-			  {
-				"name": "keyword.control.dlmt",
-				"match": "^(license|title|description|attribution-name|name|author) [a-z]{2}(-[a-z]{2})?:"
-			  },
-			  {
-				"name": "keyword.control.dlmt",
-				"match": "^(id-urn|require-sections|prefixes|copyright-year|require-types|require-generators):"
-			  },
-			  {
-				"name": "keyword.control.dlmt",
-				"match": "^(attribution-url|license-url|metadata-url|homepage-url|content-url|author-url|repository-url) (html|json|json-ld|markdown|rdf|nt|ttl|csv) [a-z]{2}(-[a-z]{2})?:"
-			  }
-			]
-		  },
-		  "classes": {
-			"patterns": [
-			  {
-				"name": "entity.name.class.dlmt",
-				"match": "\\b(fragment|chunk|accessor)\\b"
-			  }
-			]
-		  },
-		  "attributes": {
-			"patterns": [{
-				"name": "entity.name.tag.dlmt",
-				"match": "\\b(constraints|values|expr|end)\\b"
-			},
-			{
-				"name": "entity.name.tag.dlmt",
-				"match": "\\b(editable|read-once|write-once|multipleof|zeropad|remote-check|startswith|endswith|minlength|maxlength|followedby|charexp|hash:sha-256|minitems|uniq|singleline|multiplelines|filename|valuecol|titlecol|optimize:speed|separator)\\b"
-			},
-			{
-				"name": "entity.name.tag.dlmt",
-				"match": "\\b(hourly-write|daily-write|monthly-write|hourly-read|daily-read|monthly-read)\\b"
-			},
-			{
-				"name": "entity.name.tag.dlmt",
-				"match": "\\b(marker|enum|int|float|fraction|time|email|idstring|freetext|csvenum)\\b"
-			}
-			]
-		}
-	},
-	"scopeName": "source.nmo"
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Novus Modus Operandi",
+  "patterns": [
+    {
+      "include": "#header"
+    }
+  ],
+  "repository": {
+    "header": {
+      "patterns": [
+        {
+          "match": "^(id-urn)[ ]*(:)[ ]*([^\\s:,;|@%^&*()+=]+)$",
+          "captures": {
+            "1": {
+              "name": "entity.name.tag.nmo"
+            },
+            "2": {
+              "name": "punctuation.definition.separator.nmo"
+            },
+            "3": {
+              "name": "markup.italic.nmo"
+            }
+          }
+        },
+        {
+          "match": "^(require-sections)[ ]*(:)[ ]*(.{2,})$",
+          "captures": {
+            "1": {
+              "name": "entity.name.tag.nmo"
+            },
+            "2": {
+              "name": "punctuation.definition.separator.nmo"
+            },
+            "3": {
+              "name": "string.nmo"
+            }
+          }
+        },
+        {
+          "match": "^(prefixes)[ ]*(:)[ ]*(.{2,})$",
+          "captures": {
+            "1": {
+              "name": "entity.name.tag.nmo"
+            },
+            "2": {
+              "name": "punctuation.definition.separator.nmo"
+            },
+            "3": {
+              "name": "string.nmo"
+            }
+          }
+        },
+        {
+          "match": "^(name)[ ]*([a-z]{2}(-[a-z]{2, 3})?)[ ]*(:)[ ]*(.{2,})$",
+          "captures": {
+            "1": {
+              "name": "entity.name.tag.nmo"
+            },
+            "2": {
+              "name": "constant.other.symbol.nmo"
+            },
+            "3": {
+              "name": "punctuation.definition.separator.nmo"
+            },
+            "4": {
+              "name": "string.nmo"
+            }
+          }
+        },
+        {
+          "match": "^(title)[ ]*([a-z]{2}(-[a-z]{2, 3})?)[ ]*(:)[ ]*(.{2,})$",
+          "captures": {
+            "1": {
+              "name": "entity.name.tag.nmo"
+            },
+            "2": {
+              "name": "constant.other.symbol.nmo"
+            },
+            "3": {
+              "name": "punctuation.definition.separator.nmo"
+            },
+            "4": {
+              "name": "string.nmo"
+            }
+          }
+        },
+        {
+          "match": "^(license)[ ]*([a-z]{2}(-[a-z]{2, 3})?)[ ]*(:)[ ]*(.{2,})$",
+          "captures": {
+            "1": {
+              "name": "entity.name.tag.nmo"
+            },
+            "2": {
+              "name": "constant.other.symbol.nmo"
+            },
+            "3": {
+              "name": "punctuation.definition.separator.nmo"
+            },
+            "4": {
+              "name": "string.nmo"
+            }
+          }
+        },
+        {
+          "match": "^(attribution-name)[ ]*([a-z]{2}(-[a-z]{2, 3})?)[ ]*(:)[ ]*(.{2,})$",
+          "captures": {
+            "1": {
+              "name": "entity.name.tag.nmo"
+            },
+            "2": {
+              "name": "constant.other.symbol.nmo"
+            },
+            "3": {
+              "name": "punctuation.definition.separator.nmo"
+            },
+            "4": {
+              "name": "string.nmo"
+            }
+          }
+        },
+        {
+          "match": "^(author)[ ]*([a-z]{2}(-[a-z]{2, 3})?)[ ]*(:)[ ]*(.{2,})$",
+          "captures": {
+            "1": {
+              "name": "entity.name.tag.nmo"
+            },
+            "2": {
+              "name": "constant.other.symbol.nmo"
+            },
+            "3": {
+              "name": "punctuation.definition.separator.nmo"
+            },
+            "4": {
+              "name": "string.nmo"
+            }
+          }
+        },
+        {
+          "match": "^(description)[ ]*([a-z]{2}(-[a-z]{2, 3})?)[ ]*(:)[ ]*(.{2,})$",
+          "captures": {
+            "1": {
+              "name": "entity.name.tag.nmo"
+            },
+            "2": {
+              "name": "constant.other.symbol.nmo"
+            },
+            "3": {
+              "name": "punctuation.definition.separator.nmo"
+            },
+            "4": {
+              "name": "string.nmo"
+            }
+          }
+        },
+        {
+          "match": "^(license-url)[ ]*(csv|html|json|json-ld|markdown|nt|rdf|ttl)[ ]*([a-z]{2}(-[a-z]{2, 3})?)[ ]*(:)[ ]*(https?://[^\\s]+)$",
+          "captures": {
+            "1": {
+              "name": "entity.name.tag.nmo"
+            },
+            "2": {
+              "name": "keyword.control.nmo"
+            },
+            "3": {
+              "name": "constant.other.symbol.nmo"
+            },
+            "4": {
+              "name": "punctuation.definition.separator.nmo"
+            },
+            "5": {
+              "name": "markup.underline.link.nmo"
+            }
+          }
+        },
+        {
+          "match": "^(author-url)[ ]*(csv|html|json|json-ld|markdown|nt|rdf|ttl)[ ]*([a-z]{2}(-[a-z]{2, 3})?)[ ]*(:)[ ]*(https?://[^\\s]+)$",
+          "captures": {
+            "1": {
+              "name": "entity.name.tag.nmo"
+            },
+            "2": {
+              "name": "keyword.control.nmo"
+            },
+            "3": {
+              "name": "constant.other.symbol.nmo"
+            },
+            "4": {
+              "name": "punctuation.definition.separator.nmo"
+            },
+            "5": {
+              "name": "markup.underline.link.nmo"
+            }
+          }
+        },
+        {
+          "match": "^(license-url)[ ]*(csv|html|json|json-ld|markdown|nt|rdf|ttl)[ ]*([a-z]{2}(-[a-z]{2, 3})?)[ ]*(:)[ ]*(https?://[^\\s]+)$",
+          "captures": {
+            "1": {
+              "name": "entity.name.tag.nmo"
+            },
+            "2": {
+              "name": "keyword.control.nmo"
+            },
+            "3": {
+              "name": "constant.other.symbol.nmo"
+            },
+            "4": {
+              "name": "punctuation.definition.separator.nmo"
+            },
+            "5": {
+              "name": "markup.underline.link.nmo"
+            }
+          }
+        },
+        {
+          "match": "^(attribution-url)[ ]*(csv|html|json|json-ld|markdown|nt|rdf|ttl)[ ]*([a-z]{2}(-[a-z]{2, 3})?)[ ]*(:)[ ]*(https?://[^\\s]+)$",
+          "captures": {
+            "1": {
+              "name": "entity.name.tag.nmo"
+            },
+            "2": {
+              "name": "keyword.control.nmo"
+            },
+            "3": {
+              "name": "constant.other.symbol.nmo"
+            },
+            "4": {
+              "name": "punctuation.definition.separator.nmo"
+            },
+            "5": {
+              "name": "markup.underline.link.nmo"
+            }
+          }
+        },
+        {
+          "match": "^(homepage-url)[ ]*(csv|html|json|json-ld|markdown|nt|rdf|ttl)[ ]*([a-z]{2}(-[a-z]{2, 3})?)[ ]*(:)[ ]*(https?://[^\\s]+)$",
+          "captures": {
+            "1": {
+              "name": "entity.name.tag.nmo"
+            },
+            "2": {
+              "name": "keyword.control.nmo"
+            },
+            "3": {
+              "name": "constant.other.symbol.nmo"
+            },
+            "4": {
+              "name": "punctuation.definition.separator.nmo"
+            },
+            "5": {
+              "name": "markup.underline.link.nmo"
+            }
+          }
+        },
+        {
+          "match": "^(repository-url)[ ]*(csv|html|json|json-ld|markdown|nt|rdf|ttl)[ ]*([a-z]{2}(-[a-z]{2, 3})?)[ ]*(:)[ ]*(https?://[^\\s]+)$",
+          "captures": {
+            "1": {
+              "name": "entity.name.tag.nmo"
+            },
+            "2": {
+              "name": "keyword.control.nmo"
+            },
+            "3": {
+              "name": "constant.other.symbol.nmo"
+            },
+            "4": {
+              "name": "punctuation.definition.separator.nmo"
+            },
+            "5": {
+              "name": "markup.underline.link.nmo"
+            }
+          }
+        },
+        {
+          "match": "^(copyright-year)[ ]*(:)[ ]*([+-]?[0-9]+)$",
+          "captures": {
+            "1": {
+              "name": "entity.name.tag.nmo"
+            },
+            "2": {
+              "name": "punctuation.definition.separator.nmo"
+            },
+            "3": {
+              "name": "constant.numeric.nmo"
+            }
+          }
+        },
+        {
+          "match": "^(require-types)[ ]*(:)[ ]*(.{2,})$",
+          "captures": {
+            "1": {
+              "name": "entity.name.tag.nmo"
+            },
+            "2": {
+              "name": "punctuation.definition.separator.nmo"
+            },
+            "3": {
+              "name": "string.nmo"
+            }
+          }
+        },
+        {
+          "match": "^(require-generators)[ ]*(:)[ ]*(.{2,})$",
+          "captures": {
+            "1": {
+              "name": "entity.name.tag.nmo"
+            },
+            "2": {
+              "name": "punctuation.definition.separator.nmo"
+            },
+            "3": {
+              "name": "string.nmo"
+            }
+          }
+        },
+        {
+          "match": "^(require-string-constraints)[ ]*(:)[ ]*(.{2,})$",
+          "captures": {
+            "1": {
+              "name": "entity.name.tag.nmo"
+            },
+            "2": {
+              "name": "punctuation.definition.separator.nmo"
+            },
+            "3": {
+              "name": "string.nmo"
+            }
+          }
+        },
+        {
+          "match": "^(require-number-constraints)[ ]*(:)[ ]*(.{2,})$",
+          "captures": {
+            "1": {
+              "name": "entity.name.tag.nmo"
+            },
+            "2": {
+              "name": "punctuation.definition.separator.nmo"
+            },
+            "3": {
+              "name": "string.nmo"
+            }
+          }
+        },
+        {
+          "match": "^(require-list-constraints)[ ]*(:)[ ]*(.{2,})$",
+          "captures": {
+            "1": {
+              "name": "entity.name.tag.nmo"
+            },
+            "2": {
+              "name": "punctuation.definition.separator.nmo"
+            },
+            "3": {
+              "name": "string.nmo"
+            }
+          }
+        },
+        {
+          "match": "^(require-access-constraints)[ ]*(:)[ ]*(.{2,})$",
+          "captures": {
+            "1": {
+              "name": "entity.name.tag.nmo"
+            },
+            "2": {
+              "name": "punctuation.definition.separator.nmo"
+            },
+            "3": {
+              "name": "string.nmo"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "scopeName": "source.nmo"
 }
