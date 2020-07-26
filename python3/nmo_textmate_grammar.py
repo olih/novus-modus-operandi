@@ -41,6 +41,12 @@ class TmIdentifierField:
         self.match = escape_re(value)
         self.scope = "entity.name.tag"
 
+class TmSectionField:
+    def __init__(self, name: str, value: str):
+        self.name = name
+        self.match = escape_re(value)
+        self.scope = "markup.heading.1"
+
 class TmPunctuationField:
     def __init__(self, name: str, value: str):
         self.name = name
@@ -105,6 +111,15 @@ class TmFieldRow:
     def id(self, name: str):
         return self.identifier(name, name)
 
+    def section(self, name: str):
+        section_name = "section {}".format(name)
+        self.fields.append(TmSectionField(section_name, section_name))
+        return self
+
+    def customid(self, name: str):
+        self.fields.append(TmLowerDashNameField(name))
+        return self
+
     def path(self, name: str):
         self.fields.append(TmPathField(name))
         return self
@@ -166,11 +181,15 @@ class TmFieldRow:
             result[str(count)] = { "name": name}
 
         return result
+    def _to_comment(self)->str:
+        comment = " ".join([field.name for field in self.fields])
+        return comment
 
     def to_tm_rule(self, extName: str):
         return {
+            "comment": self._to_comment(),
             "match": self._to_match_rule(),
-            "captures" : self._to_captures_rule(extName)
+            "captures" : self._to_captures_rule(extName),
         }
 
 
@@ -202,7 +221,7 @@ class TmFieldSection:
 
     def to_tm_patterns(self, extName: str):
         return {
-            "patterns": [row.to_tm_rule(extName) for row in self.rows]
+            "patterns": [header.to_tm_rule(extName) for header in self.headers] + [row.to_tm_rule(extName) for row in self.rows]
         }
 
 class TextMateGrammar:
@@ -251,7 +270,7 @@ class TextMateGrammar:
  
 
 headerSection = TmFieldSection("header")
-headerSection.header("section header").id("section header")
+headerSection.header("section header").section("header")
 headerSection.row("id-urn").id("id-urn").colon().path("id-path")
 headerSection.row("require-sections").id("require-sections").colon().anystr("require-sections-values")
 headerSection.row("prefixes").id("prefixes").colon().anystr("prefixes-values")
@@ -277,7 +296,8 @@ headerSection.row("require-access-constraints").id("require-access-constraints")
 
 
 fragmentsSection = TmFieldSection("fragments")
-fragmentsSection.header("section fragments").id("section fragments")
+fragmentsSection.header("section fragments").section("fragments")
+fragmentsSection.row("marker").id("fragment").customid("fragment-id").id("marker").id("constraints").anystr("other")
 
 print("Saving Textmate grammar ...")
 tmg=TextMateGrammar()
@@ -285,4 +305,5 @@ tmg.set_name("Novus Modus Operandi")
 tmg.set_extension("nmo")
 tmg.set_filename("../vscode/nmo/syntaxes/nmo.tmLanguage.json")
 tmg.add_section(headerSection)
+tmg.add_section(fragmentsSection)
 tmg.save()
