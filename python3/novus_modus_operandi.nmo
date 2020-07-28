@@ -1,0 +1,63 @@
+section header
+id-urn: company/project/example123
+require-sections: [ header 0.5.0, fragments 0.5.0, chunks 0.5.0, accessors 0.5.0 ]
+prefixes: [ github https://github.com/, wikipedia https://www.wikipedia.org/ ]
+name en: novus modus operandi
+title en: novus modus operandi grammar
+license en: MIT
+attribution-name en: Olivier Huin
+author en: Olivier Huin
+description en: novus modus operandi file format grammar
+license-url html en: https://opensource.org/licenses/MIT
+author-url html en: https://github.com/olih
+attribution-url html en: https://github.com/olih
+homepage-url html en: https://github.com/olih
+repository-url html en: https://github.com/olih/novus-modus-operandi
+copyright-year: 2020
+require-types: [ marker, enum, int, float, fraction, time, email, idstring, freetext, csvenum, url ]
+require-string-constraints: [ starts-with, ends-with, min-length, max-length, char-exp, followed-by, hash:sha-256, single-line, multiple-lines, AZ, az, digit, underscore, dash]
+require-number-constraints: [ multiple-of, zero-pad, a < b, < _ <, < _ <=, <= _ <, <= _ <=, _ !=]
+require-list-constraints: [ min-items, max-items ]
+require-access-constraints: [ editable, read-once, write-once, remote-check, monthly-write, hourly-read]
+require-generators: [ elm-string-serializer, python-string-serializer, python-string-validator, slack-ui, vscode-syntax ]
+
+--------
+section fragments
+fragment section marker constraints [] values [ section ] -> description
+fragment fragment marker constraints [] values [ fragment ] -> description
+fragment id-urn marker constraints [] values [ id-urn ] -> description
+fragment require-sections marker constraints [] values [ require-sections ] -> description
+fragment prefixes marker constraints [] values [ prefixes ] -> description
+fragment name marker constraints [] values [ name ] -> description
+fragment title marker constraints [] values [ title ] -> description
+
+fragment numeric enum constraints [ ] values [ int float fraction time ] -> description
+fragment data-container enum constraints [ ] values [ list set tuple ] -> description
+fragment sections enum constraints [ ] values [ header fragments chunks accessors ] -> description
+fragment types enum constraints [ ] values [ marker enum int float fraction time email idstring freetext csvenum ] -> description
+fragment string-constraints enum constraints [ ] values [ starts-with ends-with min-length max-length char-exp followed-by hash:sha-256 single-line multiple-lines AZ az digit underscore dash ] -> description
+fragment number-constraints enum constraints [ ] values [ multiple-of, zero-pad, a < b, < _ <, < _ <=, <= _ <, <= _ <=, _ != ] -> description
+fragment list-constraints enum constraints [ ] values [ min-items max-items ] -> description
+fragment access-constraints enum constraints [ ] values [ editable read-once write-once remote-check monthly-write hourly-read ] -> description
+
+fragment language csvenum constraints [ read-once || filename csvfile:nmo-language.csv || value-col 0 || title-col 1 ]-> multiple languages
+fragment mediatype csvenum constraints [ read-once || filename csvfile:nmo-mediatype.csv || value-col 0 || title-col 1 ]-> media types
+fragment fragment-id idstring constraints [ key || maxlength 30 ] charexp az followedby [ az 09 - ] -> description
+fragment url url constraints [ ] values [ ] -> description
+
+--------
+section chunks
+
+chunk constraints-na constraints [ separator space ] expr [ number-constraints | access-constraints ] -> description
+chunk constraints-nal constraints [ separator space ] expr [ number-constraints | access-constraints | list-constraints] -> description
+chunk constraints-sa constraints [ separator space ] expr [ string-constraints | access-constraints ] -> description
+chunk constraints-sal constraints [ separator space ] expr [ string-constraints | access-constraints | list-constraints ] -> description
+
+chunk fragment-enum constraints [ line-instruction || separator space ] expr [ fragment fragment-id enum constraints open-bracket close-bracket values open-bracket close-bracket arrow eol-title ] -> description
+
+--------
+section accessors
+
+accessor read-config-alpha constraints [ elm-string-serializer ||  python-string-serializer || python-string-validator ] target alpha
+
+
