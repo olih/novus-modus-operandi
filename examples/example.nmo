@@ -14,7 +14,7 @@ attribution-url html en: https://your-personal-website.com/profile
 homepage-url html en: https://your-personal-website.com/homepage
 repository-url html en: https://your-personal-website.com/sourcecode
 copyright-year: 2020
-require-types: [ marker, enum, int, float, fraction, time, email, idstring, freetext, csvenum]
+require-types: [ marker, enum, int, float, fraction, time, email, idstring, freetext, csvenum ]
 require-string-constraints: [ starts-with, ends-with, min-length, max-length, char-exp, followed-by, hash:sha-256, single-line, multiple-lines, AZ, az, digit, underscore, dash]
 require-number-constraints: [ multiple-of, zero-pad, a < b, < _ <, < _ <=, <= _ <, <= _ <=]
 require-list-constraints: [ min-items, max-items ]
@@ -23,7 +23,7 @@ require-generators: [ elm-string-serializer, python-string-serializer, python-st
 
 --------
 section fragments
-fragment rdf marker constraints [] values [ rdf: ] ->
+fragment rdf marker constraints [] values [ rdf: ] -> description
 fragment numbert-ext enum constraints [ editable ] values [ one two three || thousand million || infinity ] -> description of numbertext
 fragment pos-decimal int constraints [ write-once || 0 < _ <= 21 || multipleof 3 and _ != 6 || zeropad 2 ] -> description
 fragment pos-floats set[float] constraints [ write-once || 0 < _ <= 100.00 ] -> description

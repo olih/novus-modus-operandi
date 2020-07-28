@@ -352,8 +352,8 @@
           }
         },
         {
-          "comment": "require-types colon-separator require-types-values",
-          "match": "^(require-types)[ ]*(:)[ ]*(.{2,})$",
+          "comment": "require-types colon-separator type-arr",
+          "match": "^(require-types)[ ]*(:)[ ]*([\\[][^\\[]*[\\]])$",
           "captures": {
             "1": {
               "name": "entity.name.tag.nmo"
@@ -362,13 +362,28 @@
               "name": "punctuation.definition.separator.nmo"
             },
             "3": {
-              "name": "string.nmo"
+              "patterns": [
+                {
+                  "comment": "separator",
+                  "match": "\\b[,]\\s?",
+                  "name": "punctuation.separator.array.nmo"
+                },
+                {
+                  "comment": "require-type",
+                  "match": "(csvenum|email|enum|float|fraction|freetext|idstring|int|marker|time)",
+                  "captures": {
+                    "1": {
+                      "name": "keyword.control.nmo"
+                    }
+                  }
+                }
+              ]
             }
           }
         },
         {
-          "comment": "require-generators colon-separator require-generators-values",
-          "match": "^(require-generators)[ ]*(:)[ ]*(.{2,})$",
+          "comment": "require-generators colon-separator generator-arr",
+          "match": "^(require-generators)[ ]*(:)[ ]*([\\[][^\\[]*[\\]])$",
           "captures": {
             "1": {
               "name": "entity.name.tag.nmo"
@@ -377,13 +392,28 @@
               "name": "punctuation.definition.separator.nmo"
             },
             "3": {
-              "name": "string.nmo"
+              "patterns": [
+                {
+                  "comment": "separator",
+                  "match": "\\b[,]\\s?",
+                  "name": "punctuation.separator.array.nmo"
+                },
+                {
+                  "comment": "require-generators",
+                  "match": "(elm-string-serializer|python-string-serializer|python-string-validator|slack-ui|vscode-syntax)",
+                  "captures": {
+                    "1": {
+                      "name": "keyword.control.nmo"
+                    }
+                  }
+                }
+              ]
             }
           }
         },
         {
-          "comment": "require-string-constraints colon-separator require-string-constraints-values",
-          "match": "^(require-string-constraints)[ ]*(:)[ ]*(.{2,})$",
+          "comment": "require-string-constraints colon-separator string-constraint-arr",
+          "match": "^(require-string-constraints)[ ]*(:)[ ]*([\\[][^\\[]*[\\]])$",
           "captures": {
             "1": {
               "name": "entity.name.tag.nmo"
@@ -392,13 +422,28 @@
               "name": "punctuation.definition.separator.nmo"
             },
             "3": {
-              "name": "string.nmo"
+              "patterns": [
+                {
+                  "comment": "separator",
+                  "match": "\\b[,]\\s?",
+                  "name": "punctuation.separator.array.nmo"
+                },
+                {
+                  "comment": "string-constraint",
+                  "match": "(AZ|az|char-exp|dash|digit|ends-with|followed-by|hash:sha-256|max-length|min-length|multiple-lines|single-line|starts-with|underscore)",
+                  "captures": {
+                    "1": {
+                      "name": "keyword.control.nmo"
+                    }
+                  }
+                }
+              ]
             }
           }
         },
         {
-          "comment": "require-number-constraints colon-separator require-number-constraints-values",
-          "match": "^(require-number-constraints)[ ]*(:)[ ]*(.{2,})$",
+          "comment": "require-number-constraints colon-separator number-constraint-arr",
+          "match": "^(require-number-constraints)[ ]*(:)[ ]*([\\[][^\\[]*[\\]])$",
           "captures": {
             "1": {
               "name": "entity.name.tag.nmo"
@@ -407,13 +452,28 @@
               "name": "punctuation.definition.separator.nmo"
             },
             "3": {
-              "name": "string.nmo"
+              "patterns": [
+                {
+                  "comment": "separator",
+                  "match": "\\b[,]\\s?",
+                  "name": "punctuation.separator.array.nmo"
+                },
+                {
+                  "comment": "number-constraint",
+                  "match": "(< _ <|< _ <=|<= _ <|<= _ <=|a < b|multiple-of|zero-pad)",
+                  "captures": {
+                    "1": {
+                      "name": "keyword.control.nmo"
+                    }
+                  }
+                }
+              ]
             }
           }
         },
         {
-          "comment": "require-list-constraints colon-separator require-list-constraints-values",
-          "match": "^(require-list-constraints)[ ]*(:)[ ]*(.{2,})$",
+          "comment": "require-list-constraints colon-separator list-constraint-arr",
+          "match": "^(require-list-constraints)[ ]*(:)[ ]*([\\[][^\\[]*[\\]])$",
           "captures": {
             "1": {
               "name": "entity.name.tag.nmo"
@@ -422,13 +482,28 @@
               "name": "punctuation.definition.separator.nmo"
             },
             "3": {
-              "name": "string.nmo"
+              "patterns": [
+                {
+                  "comment": "separator",
+                  "match": "\\b[,]\\s?",
+                  "name": "punctuation.separator.array.nmo"
+                },
+                {
+                  "comment": "list-constraint",
+                  "match": "(max-items|min-items)",
+                  "captures": {
+                    "1": {
+                      "name": "keyword.control.nmo"
+                    }
+                  }
+                }
+              ]
             }
           }
         },
         {
-          "comment": "require-access-constraints colon-separator require-access-constraints-values",
-          "match": "^(require-access-constraints)[ ]*(:)[ ]*(.{2,})$",
+          "comment": "require-access-constraints colon-separator access-constraint-arr",
+          "match": "^(require-access-constraints)[ ]*(:)[ ]*([\\[][^\\[]*[\\]])$",
           "captures": {
             "1": {
               "name": "entity.name.tag.nmo"
@@ -437,7 +512,22 @@
               "name": "punctuation.definition.separator.nmo"
             },
             "3": {
-              "name": "string.nmo"
+              "patterns": [
+                {
+                  "comment": "separator",
+                  "match": "\\b[,]\\s?",
+                  "name": "punctuation.separator.array.nmo"
+                },
+                {
+                  "comment": "access-constraint",
+                  "match": "(daily-read|daily-write|editable|hourly-read|hourly-write|monthly-read|monthly-write|read-once|remote-check|write-once)",
+                  "captures": {
+                    "1": {
+                      "name": "keyword.control.nmo"
+                    }
+                  }
+                }
+              ]
             }
           }
         }
@@ -455,8 +545,8 @@
           }
         },
         {
-          "comment": "fragment fragment-id marker constraints other",
-          "match": "^(fragment)[ ]*([a-z][a-z0-9-]+)[ ]*(marker)[ ]*(constraints)[ ]*(.{2,})$",
+          "comment": "fragment fragment-id marker constraints empty-array values values-arr arrow-separator other",
+          "match": "^(fragment)[ ]*([a-z][a-z0-9-]+)[ ]*(marker)[ ]*(constraints)[ ]*(\\[\\])[ ]*(values)[ ]*([\\[][^\\[]*[\\]])[ ]*(->)[ ]*(.{2,})$",
           "captures": {
             "1": {
               "name": "entity.name.tag.nmo"
@@ -471,6 +561,33 @@
               "name": "entity.name.tag.nmo"
             },
             "5": {
+              "name": "punctuation.definition.separator.nmo"
+            },
+            "6": {
+              "name": "entity.name.tag.nmo"
+            },
+            "7": {
+              "patterns": [
+                {
+                  "comment": "separator",
+                  "match": "\\b[\\|\\|]\\s?",
+                  "name": "punctuation.separator.array.nmo"
+                },
+                {
+                  "comment": "str-value",
+                  "match": "([^\\|\\|]+)",
+                  "captures": {
+                    "1": {
+                      "name": "string.nmo"
+                    }
+                  }
+                }
+              ]
+            },
+            "8": {
+              "name": "punctuation.definition.separator.nmo"
+            },
+            "9": {
               "name": "string.nmo"
             }
           }

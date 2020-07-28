@@ -95,6 +95,12 @@ class TmAnyStringField:
         self.match = ".{2,}"
         self.scope = "string"
 
+class TmAnyStringButField:
+    def __init__(self, name: str, but: str):
+        self.name = name
+        self.match = "[^{}]+".format(but)
+        self.scope = "string"
+
 class TmSeparatorField:
     def __init__(self, name: str, value: str):
         self.name = name
@@ -130,6 +136,7 @@ REQUIRE_STRING_CONSTRAINTS = strip_string_array("starts-with, ends-with, min-len
 REQUIRE_NUMBER_CONSTRAINTS = strip_string_array("multiple-of, zero-pad, a < b, < _ <, < _ <=, <= _ <, <= _ <=")
 REQUIRE_LIST_CONSTRAINTS = strip_string_array("min-items, max-items")
 REQUIRE_ACCESS_CONSTRAINTS = strip_string_array("editable, read-once, write-once, remote-check, hourly-write, daily-write, monthly-write, hourly-read, daily-read, monthly-read")
+REQUIRE_GENERATORS = strip_string_array("elm-string-serializer, python-string-serializer, python-string-validator, slack-ui, vscode-syntax")
 
 def paren(value: str)->str:
     return "({})".format(value)
@@ -167,13 +174,29 @@ class TmFieldRow:
     def colon(self):
         self.fields.append(TmPunctuationField("colon-separator", ":"))
         return self
+    
+    def arrow(self):
+        self.fields.append(TmPunctuationField("arrow-separator", "->"))
+        return self
+    
+    def emptyarray(self):
+        self.fields.append(TmPunctuationField("empty-array", "\\[\\]"))
+        return self
 
     def anystr(self, name: str):
         self.fields.append(TmAnyStringField(name))
         return self
+    
+    def anystrbutsep(self, name: str):
+        self.fields.append(TmAnyStringButField(name, "\\|\\|"))
+        return self
 
     def squarearr(self, name: str, subfields: List):
         self.fields.append(TmArrayField(name, "\\[", "\\]", ",", subfields))
+        return self
+    
+    def pipearr(self, name: str, subfields: List):
+        self.fields.append(TmArrayField(name, "\\[", "\\]", "\\|\\|", subfields))
         return self
     
     def mediatype(self):
@@ -202,6 +225,10 @@ class TmFieldRow:
     
     def requiresections(self):
         self.fields.append(TmEnumField("require-sections", REQUIRE_SECTIONS))
+        return self
+    
+    def requiregenerators(self):
+        self.fields.append(TmEnumField("require-generators", REQUIRE_GENERATORS))
         return self
 
     def url(self, name: str):
@@ -245,6 +272,9 @@ class TmFieldRow:
             "match": self._to_match_rule(),
             "captures" : self._to_captures_rule(extName),
         }
+
+    def singleton(self):
+        return [self]
 
 
 class TmFieldSection:
@@ -320,16 +350,14 @@ class TextMateGrammar:
         with open(self.filename, 'w') as outfile:
             json.dump(self.to_obj(), outfile, indent=2)
  
-section_and_version = TmFieldRow("section-and-version", isfullrow = False)
-section_and_version.requiresections().version("section-version")
-prefixes = TmFieldRow("prefixes", isfullrow = False)
-prefixes.customid("prefix").url("prefix-url")
+def tm_array_type():
+    return TmFieldRow("array-value", isfullrow = False)
 
 headerSection = TmFieldSection("header")
 headerSection.header("section header").section("header")
 headerSection.row("id-urn").id("id-urn").colon().path("id-path")
-headerSection.row("require-sections").id("require-sections").colon().squarearr("require-sections-values", [section_and_version])
-headerSection.row("prefixes").id("prefixes").colon().squarearr("prefixes-values", [prefixes])
+headerSection.row("require-sections").id("require-sections").colon().squarearr("require-sections-values", tm_array_type().requiresections().version("section-version").singleton())
+headerSection.row("prefixes").id("prefixes").colon().squarearr("prefixes-values", tm_array_type().customid("prefix").url("prefix-url").singleton())
 headerSection.row("name").id("name").lang().colon().anystr("name-value")
 headerSection.row("title").id("title").lang().colon().anystr("title-value")
 headerSection.row("license").id("license").lang().colon().anystr("license-value")
@@ -343,17 +371,17 @@ headerSection.row("attribution-url").id("attribution-url").mediatype().lang().co
 headerSection.row("homepage-url").id("homepage-url").mediatype().lang().colon().url("homepage-url-value")
 headerSection.row("repository-url").id("repository-url").mediatype().lang().colon().url("repository-url-value")
 headerSection.row("copyright-year").id("copyright-year").colon().integer("copyright-year-value")
-headerSection.row("require-types").id("require-types").colon().anystr("require-types-values")
-headerSection.row("require-generators").id("require-generators").colon().anystr("require-generators-values")
-headerSection.row("require-string-constraints").id("require-string-constraints").colon().anystr("require-string-constraints-values")
-headerSection.row("require-number-constraints").id("require-number-constraints").colon().anystr("require-number-constraints-values")
-headerSection.row("require-list-constraints").id("require-list-constraints").colon().anystr("require-list-constraints-values")
-headerSection.row("require-access-constraints").id("require-access-constraints").colon().anystr("require-access-constraints-values")
+headerSection.row("require-types").id("require-types").colon().squarearr("type-arr", tm_array_type().requiretype().singleton())
+headerSection.row("require-generators").id("require-generators").colon().squarearr("generator-arr", tm_array_type().requiregenerators().singleton())
+headerSection.row("require-string-constraints").id("require-string-constraints").colon().squarearr("string-constraint-arr", tm_array_type().stringconstr().singleton())
+headerSection.row("require-number-constraints").id("require-number-constraints").colon().squarearr("number-constraint-arr", tm_array_type().numberconstr().singleton())
+headerSection.row("require-list-constraints").id("require-list-constraints").colon().squarearr("list-constraint-arr", tm_array_type().listconstr().singleton())
+headerSection.row("require-access-constraints").id("require-access-constraints").colon().squarearr("access-constraint-arr", tm_array_type().accessconstr().singleton())
 
 
 fragmentsSection = TmFieldSection("fragments")
 fragmentsSection.header("section fragments").section("fragments")
-fragmentsSection.row("marker").id("fragment").customid("fragment-id").id("marker").id("constraints").anystr("other")
+fragmentsSection.row("marker").id("fragment").customid("fragment-id").id("marker").id("constraints").emptyarray().id("values").pipearr("values-arr", tm_array_type().anystrbutsep("str-value").singleton()).arrow().anystr("other")
 
 print("Saving Textmate grammar ...")
 tmg=TextMateGrammar()
