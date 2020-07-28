@@ -71,6 +71,12 @@ class TmFractionField:
         self.match = "[+-]?[0-9]+/[1-9][0-9]*"
         self.scope = "constant.numeric"
 
+class TmVersionField:
+    def __init__(self, name: str):
+        self.name = name
+        self.match = "[0-9]+[.][0-9]+[.][0-9]+"
+        self.scope = "constant.numeric"
+
 class TmUrlField:
     def __init__(self, name: str):
         self.name = name
@@ -89,7 +95,36 @@ class TmAnyStringField:
         self.match = ".{2,}"
         self.scope = "string"
 
+class TmSeparatorField:
+    def __init__(self, name: str, value: str):
+        self.name = name
+        self.match = "{}".format(escape_re(value))
+        self.scope = "punctuation.definition.separator"
+
+    def to_tm_pattern(self, extName: str):
+        return {
+            "comment": "{}".format(self.name),
+            "match": self.match,
+            "name": "{}.{}".format(self.scope, extName)
+        }
+
+class TmArrayField:
+    def __init__(self, name: str, start: str, finish: str, separator: str, altrows):
+        self.name = name
+        self.match = "[{}][^{}]*[{}]".format(start, start, finish)
+        self.altrows = altrows
+        self.scope = "markup.italic"
+        self.separator = separator
+    
+    def to_tm_patterns(self, extName: str):
+        separatorPattern = TmSeparatorField("separator", self.separator).to_tm_pattern(extName)
+        return {
+            "patterns": [separatorPattern] + [altrow.to_tm_rule(extName) for altrow in self.altrows]
+        }
+
+
 MEDIA_TYPES = ["html","json","json-ld","markdown","rdf","nt","ttl","csv"]
+REQUIRE_SECTIONS = ["header", "fragments", "chunks", "accessors"]
 REQUIRE_TYPES = strip_string_array("marker, enum, int, float, fraction, time, email, idstring, freetext, csvenum")
 REQUIRE_STRING_CONSTRAINTS = strip_string_array("starts-with, ends-with, min-length, max-length, char-exp, followed-by, hash:sha-256, single-line, multiple-lines, AZ, az, digit, underscore, dash")
 REQUIRE_NUMBER_CONSTRAINTS = strip_string_array("multiple-of, zero-pad, a < b, < _ <, < _ <=, <= _ <, <= _ <=")
@@ -100,9 +135,10 @@ def paren(value: str)->str:
     return "({})".format(value)
 
 class TmFieldRow:
-    def __init__(self, name:str):
+    def __init__(self, name:str, isfullrow = True):
         self.name = name
         self.fields = []
+        self.isfullrow = isfullrow
     
     def identifier(self, name: str, value: str):
         self.fields.append(TmIdentifierField(name, value))
@@ -135,6 +171,10 @@ class TmFieldRow:
     def anystr(self, name: str):
         self.fields.append(TmAnyStringField(name))
         return self
+
+    def squarearr(self, name: str, subfields: List):
+        self.fields.append(TmArrayField(name, "\\[", "\\]", ",", subfields))
+        return self
     
     def mediatype(self):
         self.fields.append(TmEnumField("mediatype", MEDIA_TYPES))
@@ -159,6 +199,10 @@ class TmFieldRow:
     def accessconstr(self):
         self.fields.append(TmEnumField("access-constraint", REQUIRE_ACCESS_CONSTRAINTS))
         return self
+    
+    def requiresections(self):
+        self.fields.append(TmEnumField("require-sections", REQUIRE_SECTIONS))
+        return self
 
     def url(self, name: str):
         self.fields.append(TmUrlField(name))
@@ -168,17 +212,27 @@ class TmFieldRow:
         self.fields.append(TmIntField(name))
         return self
 
+    def version(self, name: str):
+        self.fields.append(TmVersionField(name))
+        return self
+
     def _to_match_rule(self)->str:
         matches = "[ ]*".join([paren(field.match) for field in self.fields])
-        return "^{}$".format(matches)
+        if self.isfullrow:
+            return "^{}$".format(matches)
+        else:
+            return "{}".format(matches)
 
     def _to_captures_rule(self, extName: str):
         result = {}
         count = 0
         for field in self.fields:
             count = count + 1
-            name = "{}.{}".format(field.scope, extName)
-            result[str(count)] = { "name": name}
+            if "to_tm_patterns" in dir(field):
+                result[str(count)] = field.to_tm_patterns(extName)
+            else:
+                name = "{}.{}".format(field.scope, extName)
+                result[str(count)] = { "name": name}
 
         return result
     def _to_comment(self)->str:
@@ -266,11 +320,12 @@ class TextMateGrammar:
         with open(self.filename, 'w') as outfile:
             json.dump(self.to_obj(), outfile, indent=2)
  
-
+section_and_version = TmFieldRow("section-and-version", isfullrow = False)
+section_and_version.requiresections().version("section-version")
 headerSection = TmFieldSection("header")
 headerSection.header("section header").section("header")
 headerSection.row("id-urn").id("id-urn").colon().path("id-path")
-headerSection.row("require-sections").id("require-sections").colon().anystr("require-sections-values")
+headerSection.row("require-sections").id("require-sections").colon().squarearr("require-sections-values", [section_and_version])
 headerSection.row("prefixes").id("prefixes").colon().anystr("prefixes-values")
 headerSection.row("name").id("name").lang().colon().anystr("name-value")
 headerSection.row("title").id("title").lang().colon().anystr("title-value")
