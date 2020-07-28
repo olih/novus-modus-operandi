@@ -322,11 +322,14 @@ class TextMateGrammar:
  
 section_and_version = TmFieldRow("section-and-version", isfullrow = False)
 section_and_version.requiresections().version("section-version")
+prefixes = TmFieldRow("prefixes", isfullrow = False)
+prefixes.customid("prefix").url("prefix-url")
+
 headerSection = TmFieldSection("header")
 headerSection.header("section header").section("header")
 headerSection.row("id-urn").id("id-urn").colon().path("id-path")
 headerSection.row("require-sections").id("require-sections").colon().squarearr("require-sections-values", [section_and_version])
-headerSection.row("prefixes").id("prefixes").colon().anystr("prefixes-values")
+headerSection.row("prefixes").id("prefixes").colon().squarearr("prefixes-values", [prefixes])
 headerSection.row("name").id("name").lang().colon().anystr("name-value")
 headerSection.row("title").id("title").lang().colon().anystr("title-value")
 headerSection.row("license").id("license").lang().colon().anystr("license-value")

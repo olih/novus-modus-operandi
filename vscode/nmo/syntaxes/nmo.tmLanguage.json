@@ -71,7 +71,7 @@
         },
         {
           "comment": "prefixes colon-separator prefixes-values",
-          "match": "^(prefixes)[ ]*(:)[ ]*(.{2,})$",
+          "match": "^(prefixes)[ ]*(:)[ ]*([\\[][^\\[]*[\\]])$",
           "captures": {
             "1": {
               "name": "entity.name.tag.nmo"
@@ -80,7 +80,25 @@
               "name": "punctuation.definition.separator.nmo"
             },
             "3": {
-              "name": "string.nmo"
+              "patterns": [
+                {
+                  "comment": "separator",
+                  "match": "\\b[,]\\s?",
+                  "name": "punctuation.separator.array.nmo"
+                },
+                {
+                  "comment": "prefix prefix-url",
+                  "match": "([a-z][a-z0-9-]+)[ ]*(https?://[^\\s]+)",
+                  "captures": {
+                    "1": {
+                      "name": "variable.parameter.nmo"
+                    },
+                    "2": {
+                      "name": "markup.underline.link.nmo"
+                    }
+                  }
+                }
+              ]
             }
           }
         },
