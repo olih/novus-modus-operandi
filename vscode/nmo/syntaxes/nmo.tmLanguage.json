@@ -460,7 +460,7 @@
                 },
                 {
                   "comment": "number-constraint",
-                  "match": "(< _ <|< _ <=|<= _ <|<= _ <=|a < b|multiple-of|zero-pad)",
+                  "match": "(< _ <|< _ <=|<= _ <|<= _ <=|_ !=|a < b|multiple-of|zero-pad)",
                   "captures": {
                     "1": {
                       "name": "keyword.control.nmo"
@@ -588,6 +588,447 @@
               "name": "punctuation.definition.separator.nmo"
             },
             "9": {
+              "name": "string.nmo"
+            }
+          }
+        },
+        {
+          "comment": "fragment fragment-id enum constraints constraint-arr values values-arr arrow-separator other",
+          "match": "^(fragment)[ ]*([a-z][a-z0-9-]+)[ ]*(enum)[ ]*(constraints)[ ]*([\\[][^\\[]*[\\]])[ ]*(values)[ ]*([\\[][^\\[]*[\\]])[ ]*(->)[ ]*(.{2,})$",
+          "captures": {
+            "1": {
+              "name": "entity.name.tag.nmo"
+            },
+            "2": {
+              "name": "variable.parameter.nmo"
+            },
+            "3": {
+              "name": "entity.name.tag.nmo"
+            },
+            "4": {
+              "name": "entity.name.tag.nmo"
+            },
+            "5": {
+              "patterns": [
+                {
+                  "comment": "separator",
+                  "match": "\\b[\\|\\|]\\s?",
+                  "name": "punctuation.separator.array.nmo"
+                },
+                {
+                  "comment": "access-",
+                  "match": "(daily-read|daily-write|editable|hourly-read|hourly-write|monthly-read|monthly-write|read-once|remote-check|write-once)",
+                  "captures": {
+                    "1": {
+                      "name": "keyword.control.nmo"
+                    }
+                  }
+                }
+              ]
+            },
+            "6": {
+              "name": "entity.name.tag.nmo"
+            },
+            "7": {
+              "patterns": [
+                {
+                  "comment": "separator",
+                  "match": "\\b[\\|\\|]\\s?",
+                  "name": "punctuation.separator.array.nmo"
+                },
+                {
+                  "comment": "str-value",
+                  "match": "([^\\|\\|]+)",
+                  "captures": {
+                    "1": {
+                      "name": "string.nmo"
+                    }
+                  }
+                }
+              ]
+            },
+            "8": {
+              "name": "punctuation.definition.separator.nmo"
+            },
+            "9": {
+              "name": "string.nmo"
+            }
+          }
+        },
+        {
+          "comment": "fragment fragment-id int constraints constraint-arr arrow-separator other",
+          "match": "^(fragment)[ ]*([a-z][a-z0-9-]+)[ ]*(int)[ ]*(constraints)[ ]*([\\[][^\\[]*[\\]])[ ]*(->)[ ]*(.{2,})$",
+          "captures": {
+            "1": {
+              "name": "entity.name.tag.nmo"
+            },
+            "2": {
+              "name": "variable.parameter.nmo"
+            },
+            "3": {
+              "name": "entity.name.tag.nmo"
+            },
+            "4": {
+              "name": "entity.name.tag.nmo"
+            },
+            "5": {
+              "patterns": [
+                {
+                  "comment": "separator",
+                  "match": "\\b[\\|\\|]\\s?",
+                  "name": "punctuation.separator.array.nmo"
+                },
+                {
+                  "comment": "access-",
+                  "match": "(< _ <|< _ <=|<= _ <|<= _ <=|_ !=|a < b|daily-read|daily-write|editable|hourly-read|hourly-write|monthly-read|monthly-write|multiple-of|read-once|remote-check|write-once|zero-pad)",
+                  "captures": {
+                    "1": {
+                      "name": "keyword.control.nmo"
+                    }
+                  }
+                }
+              ]
+            },
+            "6": {
+              "name": "punctuation.definition.separator.nmo"
+            },
+            "7": {
+              "name": "string.nmo"
+            }
+          }
+        },
+        {
+          "comment": "fragment fragment-id float constraints constraint-arr arrow-separator other",
+          "match": "^(fragment)[ ]*([a-z][a-z0-9-]+)[ ]*(float)[ ]*(constraints)[ ]*([\\[][^\\[]*[\\]])[ ]*(->)[ ]*(.{2,})$",
+          "captures": {
+            "1": {
+              "name": "entity.name.tag.nmo"
+            },
+            "2": {
+              "name": "variable.parameter.nmo"
+            },
+            "3": {
+              "name": "entity.name.tag.nmo"
+            },
+            "4": {
+              "name": "entity.name.tag.nmo"
+            },
+            "5": {
+              "patterns": [
+                {
+                  "comment": "separator",
+                  "match": "\\b[\\|\\|]\\s?",
+                  "name": "punctuation.separator.array.nmo"
+                },
+                {
+                  "comment": "access-",
+                  "match": "(< _ <|< _ <=|<= _ <|<= _ <=|_ !=|a < b|daily-read|daily-write|editable|hourly-read|hourly-write|monthly-read|monthly-write|multiple-of|read-once|remote-check|write-once|zero-pad)",
+                  "captures": {
+                    "1": {
+                      "name": "keyword.control.nmo"
+                    }
+                  }
+                }
+              ]
+            },
+            "6": {
+              "name": "punctuation.definition.separator.nmo"
+            },
+            "7": {
+              "name": "string.nmo"
+            }
+          }
+        },
+        {
+          "comment": "fragment fragment-id fraction constraints constraint-arr arrow-separator other",
+          "match": "^(fragment)[ ]*([a-z][a-z0-9-]+)[ ]*(fraction)[ ]*(constraints)[ ]*([\\[][^\\[]*[\\]])[ ]*(->)[ ]*(.{2,})$",
+          "captures": {
+            "1": {
+              "name": "entity.name.tag.nmo"
+            },
+            "2": {
+              "name": "variable.parameter.nmo"
+            },
+            "3": {
+              "name": "entity.name.tag.nmo"
+            },
+            "4": {
+              "name": "entity.name.tag.nmo"
+            },
+            "5": {
+              "patterns": [
+                {
+                  "comment": "separator",
+                  "match": "\\b[\\|\\|]\\s?",
+                  "name": "punctuation.separator.array.nmo"
+                },
+                {
+                  "comment": "access-",
+                  "match": "(< _ <|< _ <=|<= _ <|<= _ <=|_ !=|a < b|daily-read|daily-write|editable|hourly-read|hourly-write|monthly-read|monthly-write|multiple-of|read-once|remote-check|write-once|zero-pad)",
+                  "captures": {
+                    "1": {
+                      "name": "keyword.control.nmo"
+                    }
+                  }
+                }
+              ]
+            },
+            "6": {
+              "name": "punctuation.definition.separator.nmo"
+            },
+            "7": {
+              "name": "string.nmo"
+            }
+          }
+        },
+        {
+          "comment": "fragment fragment-id set\\[int\\] constraints constraint-arr arrow-separator other",
+          "match": "^(fragment)[ ]*([a-z][a-z0-9-]+)[ ]*(set\\[int\\])[ ]*(constraints)[ ]*([\\[][^\\[]*[\\]])[ ]*(->)[ ]*(.{2,})$",
+          "captures": {
+            "1": {
+              "name": "entity.name.tag.nmo"
+            },
+            "2": {
+              "name": "variable.parameter.nmo"
+            },
+            "3": {
+              "name": "entity.name.tag.nmo"
+            },
+            "4": {
+              "name": "entity.name.tag.nmo"
+            },
+            "5": {
+              "patterns": [
+                {
+                  "comment": "separator",
+                  "match": "\\b[\\|\\|]\\s?",
+                  "name": "punctuation.separator.array.nmo"
+                },
+                {
+                  "comment": "access-",
+                  "match": "(< _ <|< _ <=|<= _ <|<= _ <=|_ !=|a < b|daily-read|daily-write|editable|hourly-read|hourly-write|max-items|min-items|monthly-read|monthly-write|multiple-of|read-once|remote-check|write-once|zero-pad)",
+                  "captures": {
+                    "1": {
+                      "name": "keyword.control.nmo"
+                    }
+                  }
+                }
+              ]
+            },
+            "6": {
+              "name": "punctuation.definition.separator.nmo"
+            },
+            "7": {
+              "name": "string.nmo"
+            }
+          }
+        },
+        {
+          "comment": "fragment fragment-id set\\[float\\] constraints constraint-arr arrow-separator other",
+          "match": "^(fragment)[ ]*([a-z][a-z0-9-]+)[ ]*(set\\[float\\])[ ]*(constraints)[ ]*([\\[][^\\[]*[\\]])[ ]*(->)[ ]*(.{2,})$",
+          "captures": {
+            "1": {
+              "name": "entity.name.tag.nmo"
+            },
+            "2": {
+              "name": "variable.parameter.nmo"
+            },
+            "3": {
+              "name": "entity.name.tag.nmo"
+            },
+            "4": {
+              "name": "entity.name.tag.nmo"
+            },
+            "5": {
+              "patterns": [
+                {
+                  "comment": "separator",
+                  "match": "\\b[\\|\\|]\\s?",
+                  "name": "punctuation.separator.array.nmo"
+                },
+                {
+                  "comment": "access-",
+                  "match": "(< _ <|< _ <=|<= _ <|<= _ <=|_ !=|a < b|daily-read|daily-write|editable|hourly-read|hourly-write|max-items|min-items|monthly-read|monthly-write|multiple-of|read-once|remote-check|write-once|zero-pad)",
+                  "captures": {
+                    "1": {
+                      "name": "keyword.control.nmo"
+                    }
+                  }
+                }
+              ]
+            },
+            "6": {
+              "name": "punctuation.definition.separator.nmo"
+            },
+            "7": {
+              "name": "string.nmo"
+            }
+          }
+        },
+        {
+          "comment": "fragment fragment-id set\\[fraction\\] constraints constraint-arr arrow-separator other",
+          "match": "^(fragment)[ ]*([a-z][a-z0-9-]+)[ ]*(set\\[fraction\\])[ ]*(constraints)[ ]*([\\[][^\\[]*[\\]])[ ]*(->)[ ]*(.{2,})$",
+          "captures": {
+            "1": {
+              "name": "entity.name.tag.nmo"
+            },
+            "2": {
+              "name": "variable.parameter.nmo"
+            },
+            "3": {
+              "name": "entity.name.tag.nmo"
+            },
+            "4": {
+              "name": "entity.name.tag.nmo"
+            },
+            "5": {
+              "patterns": [
+                {
+                  "comment": "separator",
+                  "match": "\\b[\\|\\|]\\s?",
+                  "name": "punctuation.separator.array.nmo"
+                },
+                {
+                  "comment": "access-",
+                  "match": "(< _ <|< _ <=|<= _ <|<= _ <=|_ !=|a < b|daily-read|daily-write|editable|hourly-read|hourly-write|max-items|min-items|monthly-read|monthly-write|multiple-of|read-once|remote-check|write-once|zero-pad)",
+                  "captures": {
+                    "1": {
+                      "name": "keyword.control.nmo"
+                    }
+                  }
+                }
+              ]
+            },
+            "6": {
+              "name": "punctuation.definition.separator.nmo"
+            },
+            "7": {
+              "name": "string.nmo"
+            }
+          }
+        },
+        {
+          "comment": "fragment fragment-id list\\[int\\] constraints constraint-arr arrow-separator other",
+          "match": "^(fragment)[ ]*([a-z][a-z0-9-]+)[ ]*(list\\[int\\])[ ]*(constraints)[ ]*([\\[][^\\[]*[\\]])[ ]*(->)[ ]*(.{2,})$",
+          "captures": {
+            "1": {
+              "name": "entity.name.tag.nmo"
+            },
+            "2": {
+              "name": "variable.parameter.nmo"
+            },
+            "3": {
+              "name": "entity.name.tag.nmo"
+            },
+            "4": {
+              "name": "entity.name.tag.nmo"
+            },
+            "5": {
+              "patterns": [
+                {
+                  "comment": "separator",
+                  "match": "\\b[\\|\\|]\\s?",
+                  "name": "punctuation.separator.array.nmo"
+                },
+                {
+                  "comment": "access-",
+                  "match": "(< _ <|< _ <=|<= _ <|<= _ <=|_ !=|a < b|daily-read|daily-write|editable|hourly-read|hourly-write|max-items|min-items|monthly-read|monthly-write|multiple-of|read-once|remote-check|write-once|zero-pad)",
+                  "captures": {
+                    "1": {
+                      "name": "keyword.control.nmo"
+                    }
+                  }
+                }
+              ]
+            },
+            "6": {
+              "name": "punctuation.definition.separator.nmo"
+            },
+            "7": {
+              "name": "string.nmo"
+            }
+          }
+        },
+        {
+          "comment": "fragment fragment-id list\\[float\\] constraints constraint-arr arrow-separator other",
+          "match": "^(fragment)[ ]*([a-z][a-z0-9-]+)[ ]*(list\\[float\\])[ ]*(constraints)[ ]*([\\[][^\\[]*[\\]])[ ]*(->)[ ]*(.{2,})$",
+          "captures": {
+            "1": {
+              "name": "entity.name.tag.nmo"
+            },
+            "2": {
+              "name": "variable.parameter.nmo"
+            },
+            "3": {
+              "name": "entity.name.tag.nmo"
+            },
+            "4": {
+              "name": "entity.name.tag.nmo"
+            },
+            "5": {
+              "patterns": [
+                {
+                  "comment": "separator",
+                  "match": "\\b[\\|\\|]\\s?",
+                  "name": "punctuation.separator.array.nmo"
+                },
+                {
+                  "comment": "access-",
+                  "match": "(< _ <|< _ <=|<= _ <|<= _ <=|_ !=|a < b|daily-read|daily-write|editable|hourly-read|hourly-write|max-items|min-items|monthly-read|monthly-write|multiple-of|read-once|remote-check|write-once|zero-pad)",
+                  "captures": {
+                    "1": {
+                      "name": "keyword.control.nmo"
+                    }
+                  }
+                }
+              ]
+            },
+            "6": {
+              "name": "punctuation.definition.separator.nmo"
+            },
+            "7": {
+              "name": "string.nmo"
+            }
+          }
+        },
+        {
+          "comment": "fragment fragment-id list\\[fraction\\] constraints constraint-arr arrow-separator other",
+          "match": "^(fragment)[ ]*([a-z][a-z0-9-]+)[ ]*(list\\[fraction\\])[ ]*(constraints)[ ]*([\\[][^\\[]*[\\]])[ ]*(->)[ ]*(.{2,})$",
+          "captures": {
+            "1": {
+              "name": "entity.name.tag.nmo"
+            },
+            "2": {
+              "name": "variable.parameter.nmo"
+            },
+            "3": {
+              "name": "entity.name.tag.nmo"
+            },
+            "4": {
+              "name": "entity.name.tag.nmo"
+            },
+            "5": {
+              "patterns": [
+                {
+                  "comment": "separator",
+                  "match": "\\b[\\|\\|]\\s?",
+                  "name": "punctuation.separator.array.nmo"
+                },
+                {
+                  "comment": "access-",
+                  "match": "(< _ <|< _ <=|<= _ <|<= _ <=|_ !=|a < b|daily-read|daily-write|editable|hourly-read|hourly-write|max-items|min-items|monthly-read|monthly-write|multiple-of|read-once|remote-check|write-once|zero-pad)",
+                  "captures": {
+                    "1": {
+                      "name": "keyword.control.nmo"
+                    }
+                  }
+                }
+              ]
+            },
+            "6": {
+              "name": "punctuation.definition.separator.nmo"
+            },
+            "7": {
               "name": "string.nmo"
             }
           }

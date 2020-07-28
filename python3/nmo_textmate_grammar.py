@@ -133,7 +133,7 @@ MEDIA_TYPES = ["html","json","json-ld","markdown","rdf","nt","ttl","csv"]
 REQUIRE_SECTIONS = ["header", "fragments", "chunks", "accessors"]
 REQUIRE_TYPES = strip_string_array("marker, enum, int, float, fraction, time, email, idstring, freetext, csvenum")
 REQUIRE_STRING_CONSTRAINTS = strip_string_array("starts-with, ends-with, min-length, max-length, char-exp, followed-by, hash:sha-256, single-line, multiple-lines, AZ, az, digit, underscore, dash")
-REQUIRE_NUMBER_CONSTRAINTS = strip_string_array("multiple-of, zero-pad, a < b, < _ <, < _ <=, <= _ <, <= _ <=")
+REQUIRE_NUMBER_CONSTRAINTS = strip_string_array("multiple-of, zero-pad, a < b, < _ <, < _ <=, <= _ <, <= _ <=, _ !=")
 REQUIRE_LIST_CONSTRAINTS = strip_string_array("min-items, max-items")
 REQUIRE_ACCESS_CONSTRAINTS = strip_string_array("editable, read-once, write-once, remote-check, hourly-write, daily-write, monthly-write, hourly-read, daily-read, monthly-read")
 REQUIRE_GENERATORS = strip_string_array("elm-string-serializer, python-string-serializer, python-string-validator, slack-ui, vscode-syntax")
@@ -223,6 +223,22 @@ class TmFieldRow:
         self.fields.append(TmEnumField("access-constraint", REQUIRE_ACCESS_CONSTRAINTS))
         return self
     
+    def constraints(self, flags: str):
+        constr = []
+        if "S" in flags:
+           constr +=  REQUIRE_STRING_CONSTRAINTS
+        if "N" in flags:
+           constr +=  REQUIRE_NUMBER_CONSTRAINTS
+        if "L" in flags:
+           constr +=  REQUIRE_LIST_CONSTRAINTS
+        if "A" in flags:
+           constr +=  REQUIRE_ACCESS_CONSTRAINTS
+        self.fields.append(TmEnumField("access-".format(flags), constr))
+        return self
+        
+
+
+
     def requiresections(self):
         self.fields.append(TmEnumField("require-sections", REQUIRE_SECTIONS))
         return self
@@ -382,6 +398,16 @@ headerSection.row("require-access-constraints").id("require-access-constraints")
 fragmentsSection = TmFieldSection("fragments")
 fragmentsSection.header("section fragments").section("fragments")
 fragmentsSection.row("marker").id("fragment").customid("fragment-id").id("marker").id("constraints").emptyarray().id("values").pipearr("values-arr", tm_array_type().anystrbutsep("str-value").singleton()).arrow().anystr("other")
+fragmentsSection.row("enum").id("fragment").customid("fragment-id").id("enum").id("constraints").pipearr("constraint-arr", tm_array_type().constraints("A").singleton()).id("values").pipearr("values-arr", tm_array_type().anystrbutsep("str-value").singleton()).arrow().anystr("other")
+fragmentsSection.row("int").id("fragment").customid("fragment-id").id("int").id("constraints").pipearr("constraint-arr", tm_array_type().constraints("AN").singleton()).arrow().anystr("other")
+fragmentsSection.row("float").id("fragment").customid("fragment-id").id("float").id("constraints").pipearr("constraint-arr", tm_array_type().constraints("AN").singleton()).arrow().anystr("other")
+fragmentsSection.row("fraction").id("fragment").customid("fragment-id").id("fraction").id("constraints").pipearr("constraint-arr", tm_array_type().constraints("AN").singleton()).arrow().anystr("other")
+fragmentsSection.row("set[int]").id("fragment").customid("fragment-id").id("set\\[int\\]").id("constraints").pipearr("constraint-arr", tm_array_type().constraints("ANL").singleton()).arrow().anystr("other")
+fragmentsSection.row("set[float]").id("fragment").customid("fragment-id").id("set\\[float\\]").id("constraints").pipearr("constraint-arr", tm_array_type().constraints("ANL").singleton()).arrow().anystr("other")
+fragmentsSection.row("set[fraction]").id("fragment").customid("fragment-id").id("set\\[fraction\\]").id("constraints").pipearr("constraint-arr", tm_array_type().constraints("ANL").singleton()).arrow().anystr("other")
+fragmentsSection.row("list[int]").id("fragment").customid("fragment-id").id("list\\[int\\]").id("constraints").pipearr("constraint-arr", tm_array_type().constraints("ANL").singleton()).arrow().anystr("other")
+fragmentsSection.row("list[float]").id("fragment").customid("fragment-id").id("list\\[float\\]").id("constraints").pipearr("constraint-arr", tm_array_type().constraints("ANL").singleton()).arrow().anystr("other")
+fragmentsSection.row("list[fraction]").id("fragment").customid("fragment-id").id("list\\[fraction\\]").id("constraints").pipearr("constraint-arr", tm_array_type().constraints("ANL").singleton()).arrow().anystr("other")
 
 print("Saving Textmate grammar ...")
 tmg=TextMateGrammar()
