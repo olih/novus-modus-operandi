@@ -1,6 +1,6 @@
 section header
 id-urn: company/project/example123
-require-sections: [ header 0.5.1,views 0.5.0,tag-descriptions 0.5.0,brushes 0.5,brushstrokes 0.5 ]
+require-sections: [ header 0.5.1, fragments 0.5.0, chunks 0.5.0, accessors 0.5.1 ]
 prefixes: [ github https://github.com/ ]
 name en: example123
 title en: some relevant title

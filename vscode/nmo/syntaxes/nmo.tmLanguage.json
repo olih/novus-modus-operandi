@@ -50,8 +50,8 @@
               "patterns": [
                 {
                   "comment": "separator",
-                  "match": ",",
-                  "name": "punctuation.definition.separator.nmo"
+                  "match": "\\b[,]\\s?",
+                  "name": "punctuation.separator.array.nmo"
                 },
                 {
                   "comment": "require-sections section-version",

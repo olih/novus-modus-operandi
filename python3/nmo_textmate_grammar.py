@@ -98,8 +98,8 @@ class TmAnyStringField:
 class TmSeparatorField:
     def __init__(self, name: str, value: str):
         self.name = name
-        self.match = "{}".format(escape_re(value))
-        self.scope = "punctuation.definition.separator"
+        self.match = "\\b[{}]\\s?".format(escape_re(value))
+        self.scope = "punctuation.separator.array"
 
     def to_tm_pattern(self, extName: str):
         return {
