@@ -51,12 +51,17 @@ class TmEnumRegexField(TmBaseField):
         }
 
 class TmFieldSequence(TmBaseField):
-    def __init__(self, config: TmConfig, name: str, start: str, finish: str, fieldseq: List[TmBaseField]) :
+    def __init__(self, config: TmConfig, name: str, start: str, finish: str) :
+        self.config = config
         self.name = name
-        self.fieldseq = fieldseq
         self.start = start
         self.finish = finish
+        self.fieldseq = []
     
+    def add(self, field: TmBaseField):
+        self.fieldseq.append(field)
+        return self
+
     def _to_match_rule(self)->str:
         match_seq = "[ ]*".join([paren(field.to_tm_ob().match) for field in self.fieldseq])
         match = "{}{}{}".format(escape_re(self.start), match_seq, escape_re(self.finish))
@@ -86,10 +91,11 @@ class TmFieldSequence(TmBaseField):
 
 class TmAltFieldSequence(TmBaseField):
     def __init__(self, config: TmConfig, name: str, start: str, finish: str, altfieldseq: List[TmFieldSequence]) :
+        self.config = config
         self.name = name
-        self.altfieldseq = altfieldseq
         self.start = start
         self.finish = finish
+        self.altfieldseq = altfieldseq
 
     def to_tm_ob(self):
         return {
