@@ -4,37 +4,37 @@ from vscode_helper import TmConfig, TmSimpleRegexField, TmEnumRegexField, TmFiel
 
 cfg = TmConfig().set_extension("extension_name")
 
-class TmMyFieldSeq:
+class TmMyFieldSeq(TmFieldSequence):
     def __init__(self, name: str):
-        self.fieldseq = TmFieldSequence(cfg, name, "^", "$")
+        super().__init__(cfg, name, "^", "$")
 
     def simple_field(self):
         field = TmSimpleRegexField(
-            self.fieldseq.config,
+            self.config,
             name = "simple-field",
             scope = "scope-simple-field",
             match = "simple"
             )
-        self.fieldseq.add(field)
+        self.add(field)
         return self
 
     def enum_field(self):
         field = TmEnumRegexField(
-            self.fieldseq.config,
+            self.config,
             name = "enum-field",
             scope = "scope",
             keywords = ["keyword1", "keyword2"]
             )
-        self.fieldseq.add(field)
+        self.add(field)
         return self
 
     def alt_field_seq(self, altfieldseq: List[TmFieldSequence]):
         field = TmAltFieldSequence(
-            self.fieldseq.config,
+            self.config,
             name = "alt-field-seq",
             altfieldseq = altfieldseq
             )
-        self.fieldseq.add(field)
+        self.add(field)
         return self
         
 class TmMySection(TmBaseSection):

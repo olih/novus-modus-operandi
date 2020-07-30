@@ -75,7 +75,7 @@ class TmFieldSequence(TmBaseField):
         return self
 
     def _to_match_rule(self)->str:
-        match_seq = "[ ]*".join([paren(field.to_tm_obj().match) for field in self.fieldseq])
+        match_seq = "[ ]*".join([paren(field.to_tm_obj()["match"]) for field in self.fieldseq])
         match = "{}{}{}".format(escape_re(self.start), match_seq, escape_re(self.finish))
         return match
 
@@ -88,7 +88,7 @@ class TmFieldSequence(TmBaseField):
         return result
     
     def _to_comment(self)->str:
-        comment = " ".join([field.to_tm_obj().comment for field in self.fieldseq])
+        comment = " ".join([field.to_tm_obj()["comment"] for field in self.fieldseq])
         return comment
 
     def to_tm_obj(self):
