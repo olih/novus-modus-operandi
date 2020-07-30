@@ -171,3 +171,5 @@ dmypy.json
 .pytype/
 
 # End of https://www.toptal.com/developers/gitignore/api/macos,elm,python
+
+.vscode/
