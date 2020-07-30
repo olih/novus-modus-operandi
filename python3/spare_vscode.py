@@ -1,5 +1,5 @@
 from typing import List, Tuple, Dict, Set
-from vscode_helper import TmConfig, TmSimpleRegexField, TmEnumRegexField, TmFieldSequence, TmAltFieldSequence, TmBaseSection, TextMateGrammar
+from vscode_helper import TmConfig, TmSimpleRegexField, TmEnumRegexField, TmFieldSequence, TmAltFieldSequence, TextMateGrammar
 
 
 cfg = TmConfig().set_extension("extension_name")
@@ -37,18 +37,13 @@ class TmMyFieldSeq(TmFieldSequence):
         self.add(field)
         return self
         
-class TmMySection(TmBaseSection):
+class TmMySection(TmAltFieldSequence):
     def __init__(self, name:str):
-        super().__init__(cfg, name)
+        super().__init__(cfg, name, [])
     
-    def header(self, name: str):
-        header = TmMyFieldSeq(name)
-        self.add_header(header)
-        return header
-
     def row(self, name: str):
         row = TmMyFieldSeq(name)
-        self.add_row(row)
+        self.add(row)
         return row
 
 def field_seq():
@@ -56,10 +51,9 @@ def field_seq():
 
 def create_my_section():
     mySection = TmMySection("name")
-    mySection.header("section mysection").simple_field().enum_field()
     mySection.row("row-simple-field").simple_field()
     mySection.row("row-enum-field").enum_field()
-    mySection.row("row-simple-and-enum").simple_field().enum_field().simple_field()
+    mySection.row("row-simple-and-enum").simple_field().enum_field()
     # mySection.row("custom-row").alt_field_seq(field_seq().simple_field())
     return mySection
 

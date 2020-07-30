@@ -116,31 +116,12 @@ class TmAltFieldSequence(TmBaseField):
             "patterns": [fieldseq.to_tm_obj() for fieldseq in self.altfieldseq]
         }
 
-class TmBaseSection:
-    def __init__(self, config: TmConfig, name:str):
-        self.name = name
-        self.headers = TmAltFieldSequence(config, "headers-{}".format(name), [])
-        self.rows = TmAltFieldSequence(config, "rows-{}".format(name), [])
-    
-    def add_header(self, fieldseq: TmFieldSequence):
-        self.headers.add(fieldseq)
-        return self
-    
-    def add_row(self, fieldseq: TmFieldSequence):
-        self.rows.add(fieldseq)
-        return self
-    
-    def to_tm_obj(self):
-        return {
-           "patterns": self.headers.to_tm_obj()["patterns"] + self.rows.to_tm_obj()["patterns"]
-        }
-
 class TextMateGrammar:
     def __init__(self, config: TmConfig):
         self.config: TmConfig = config
-        self.sections: List[TmBaseSection] = [] 
+        self.sections: List[TmAltFieldSequence] = [] 
 
-    def add_section(self, section: TmBaseSection):
+    def add_section(self, section: TmAltFieldSequence):
         self.sections.append(section)
         return self
 
