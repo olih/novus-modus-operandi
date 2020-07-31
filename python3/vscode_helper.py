@@ -1,4 +1,5 @@
 from typing import List, Tuple, Dict, Set
+import re
 import json
 
 def escape_re(value: str)->str:
@@ -7,6 +8,10 @@ def escape_re(value: str)->str:
 def paren(value: str)->str:
     return "({})".format(value)
 
+def ensure_re(value: str):
+    re.compile(value)
+    return value
+ 
 class TmConfig:
     def __init__(self):
         self.name = ""
@@ -27,6 +32,12 @@ class TmConfig:
         return self
 
 class TmBaseField:
+    def to_match(self)->str:
+        pass
+    
+    def to_comment(self)->str:
+        pass
+    
     def to_tm_obj(self):
         pass
 
@@ -38,27 +49,39 @@ class TmSimpleRegexField(TmBaseField):
     def __init__(self, config: TmConfig, name: str, scope: str, match: str):
         self.config = config
         self.name = name
-        self.match = match
+        self.match = ensure_re(match)
         self.scope = scope
+
+    def to_match(self):
+        return self.match
+    
+    def to_comment(self):
+        return "{}".format(self.name)
 
     def to_tm_obj(self):
         return {
-            "comment": "{}".format(self.name),
+            "comment": self.to_comment(),
             "match": self.match,
             "name": "{}.{}".format(self.scope, self.config.extname)
         }
 
-class TmEnumRegexField(TmBaseField):
+class TmEnumField(TmBaseField):
     def __init__(self, config: TmConfig, name: str, scope: str, keywords: List[str]):
         self.config = config
         self.name = name
         self.keywords = keywords
         self.scope = scope
+    
+    def to_match(self)->str:
+        return "|".join(sorted(list(set([escape_re(k.strip()) for k in self.keywords]))))
 
-    def to_tm_obj(self):
+    def to_comment(self):
+        return "{}".format(self.name)
+
+    def to_tm_obj(self)->str:
         return {
-            "comment": "{}".format(self.name),
-            "match": "|".join(sorted(list(set([escape_re(k.strip()) for k in self.keywords])))),
+            "comment": self.to_comment(),
+            "match": self.to_match(),
             "name": "{}.{}".format(self.scope, self.config.extname)
         }
 
@@ -66,17 +89,17 @@ class TmFieldSequence(TmBaseField):
     def __init__(self, config: TmConfig, name: str, start: str, finish: str, fieldseq: List[TmBaseField]) :
         self.config = config
         self.name = name
-        self.start = start
-        self.finish = finish
+        self.start = ensure_re(start)
+        self.finish = ensure_re(finish)
         self.fieldseq = fieldseq
     
     def add(self, field: TmBaseField):
         self.fieldseq.append(field)
         return self
 
-    def _to_match_rule(self)->str:
-        match_seq = "[ ]*".join([paren(field.to_tm_obj()["match"]) for field in self.fieldseq])
-        match = "{}{}{}".format(escape_re(self.start), match_seq, escape_re(self.finish))
+    def to_match(self)->str:
+        match_seq = "[ ]*".join([paren(field.to_match()) for field in self.fieldseq])
+        match = "{}{}{}".format(self.start, match_seq, self.finish)
         return match
 
     def _to_captures_rule(self):
@@ -87,14 +110,14 @@ class TmFieldSequence(TmBaseField):
             result[str(count)] = field.to_tm_obj()
         return result
     
-    def _to_comment(self)->str:
-        comment = " ".join([field.to_tm_obj()["comment"] for field in self.fieldseq])
+    def to_comment(self)->str:
+        comment = " ".join([field.to_comment() for field in self.fieldseq])
         return comment
 
     def to_tm_obj(self):
         return {
-            "comment": self._to_comment(),
-            "match": self._to_match_rule(),
+            "comment": self.to_comment(),
+            "match": self.to_match(),
             "captures" : self._to_captures_rule(),
         }
     
@@ -110,6 +133,12 @@ class TmAltFieldSequence(TmBaseField):
     def add(self, fieldseq: TmFieldSequence):
         self.altfieldseq.append(fieldseq)
         return self
+    
+    def to_match(self):
+        return ".*"
+    
+    def to_comment(self):
+        return "{}".format(self.name)
 
     def to_tm_obj(self):
         return {
