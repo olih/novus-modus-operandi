@@ -63,12 +63,12 @@ class TmEnumRegexField(TmBaseField):
         }
 
 class TmFieldSequence(TmBaseField):
-    def __init__(self, config: TmConfig, name: str, start: str, finish: str) :
+    def __init__(self, config: TmConfig, name: str, start: str, finish: str, fieldseq: List[TmBaseField]) :
         self.config = config
         self.name = name
         self.start = start
         self.finish = finish
-        self.fieldseq = []
+        self.fieldseq = fieldseq
     
     def add(self, field: TmBaseField):
         self.fieldseq.append(field)
