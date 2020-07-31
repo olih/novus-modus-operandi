@@ -1,8 +1,14 @@
 from typing import List, Tuple, Dict, Set
 from vscode_helper import TmConfig, TmBaseField, TmSimpleRegexField, TmEnumField, TmFieldSequence, TmAltFieldSequence, TextMateGrammar
 
+def create_config():
+    cfg = TmConfig()
+    cfg.set_extension("extension_name")
+    cfg.set_name("my script language")
+    cfg.set_filename("./mydsl.tmLanguage.json")
+    return cfg
 
-cfg = TmConfig().set_extension("extension_name")
+cfg = create_config()
 
 def simple_field():
     return TmSimpleRegexField(
@@ -46,7 +52,7 @@ def alt_field_seq(altfieldseq: List[TmFieldSequence]):
         )
         
 def create_my_section():
-    mySection = TmAltFieldSequence(cfg, "name", [])
+    mySection = TmAltFieldSequence(cfg, "section1", [])
     mySection.add(line_field_seq([simple_field()]))
     mySection.add(line_field_seq([enum_field()]))
     mySection.add(line_field_seq([simple_field(), enum_field()]))
@@ -54,4 +60,9 @@ def create_my_section():
     myAlternatives = alt_field_seq([myAternative])
     mySection.add(line_field_seq([simple_field(),myAlternatives ]))
     return mySection
+
+def create_my_grammar():
+    textmateGrammar = TextMateGrammar(cfg)
+    textmateGrammar.add_section(create_my_section())
+    return textmateGrammar
 

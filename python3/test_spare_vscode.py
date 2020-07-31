@@ -1,6 +1,6 @@
 import unittest
 
-from spare_vscode import create_my_section
+from spare_vscode import create_my_section, create_my_grammar
 
 simple_field = {
     'comment': 'simple-field',
@@ -76,3 +76,11 @@ class TestSpareVsCode(unittest.TestCase):
         self.assertEqual(my_section["patterns"][1], enum_field)
         self.assertEqual(my_section["patterns"][2], simple_field_enum_field)
         self.assertEqual(my_section["patterns"][3], embedded_fields)
+
+    def test_create_my_grammar(self):
+        my_grammar = create_my_grammar().to_obj()
+        self.assertEqual(my_grammar["name"], "my script language")
+        self.assertEqual(my_grammar["scopeName"], "source.extension_name")
+        self.assertEqual(my_grammar["patterns"], [{'include': '#section1'}])
+        self.assertEqual(list(my_grammar["repository"].keys()), ["section1"])
+       
