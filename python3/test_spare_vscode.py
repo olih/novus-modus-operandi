@@ -1,8 +1,9 @@
 import unittest
+import re
 
-from spare_vscode import create_my_section, create_my_grammar
+from spare_vscode import create_my_section, create_my_grammar, simple_field, enum_field, line_field_seq, embed_field_seq, alt_field_seq
 
-simple_field = {
+simple_field_obj = {
     'comment': 'simple-field',
     'match': '^(simple)$',
     'captures': {
@@ -13,7 +14,7 @@ simple_field = {
         }
     }
 }
-enum_field = {
+enum_field_obj = {
     'comment': 'enum-field',
     'match': '^(keyword1|keyword2)$',
     'captures': {
@@ -25,7 +26,7 @@ enum_field = {
     }
 }
 
-simple_field_enum_field = {
+simple_field_enum_field_obj = {
     'comment': 'simple-field enum-field',
     'match': '^(simple)[ ]*(keyword1|keyword2)$',
     'captures': {
@@ -41,7 +42,7 @@ simple_field_enum_field = {
     }
 }
 
-embedded_fields = {
+embedded_fields_obj = {
     'comment': 'simple-field alt-field-seq',
     'match': '^(simple)[ ]*(.*)$',
     'captures': {
@@ -69,13 +70,38 @@ embedded_fields = {
 
 class TestSpareVsCode(unittest.TestCase):
 
+    def test_simple_field(self):
+        field = simple_field()
+        p = re.compile(field.to_match())
+        self.assertEqual(p.match("simple").group(), "simple")
+
+    def test_enum_field(self):
+        field = enum_field()
+        p = re.compile(field.to_match())
+        self.assertEqual(p.match("keyword2").group(), "keyword2")
+
+    def test_line_field_seq(self):
+        field = line_field_seq([simple_field(), simple_field()])
+        p = re.compile(field.to_match())
+        self.assertEqual(p.match("simple simple").group(), "simple simple")
+
+    def test_embed_field_seq(self):
+        field = embed_field_seq([simple_field(), simple_field()])
+        p = re.compile(field.to_match())
+        self.assertEqual(p.match("simple simple").group(), "simple simple")
+
+    def test_alt_field_seq(self):
+        field = alt_field_seq([embed_field_seq([simple_field(), simple_field()])])
+        p = re.compile(field.to_match())
+        self.assertEqual(p.match("anything really").group(), "anything really")
+
     def test_create_my_section(self):
         my_section = create_my_section().to_tm_obj()
         self.assertEqual(len(my_section["patterns"]), 4)
-        self.assertEqual(my_section["patterns"][0], simple_field)
-        self.assertEqual(my_section["patterns"][1], enum_field)
-        self.assertEqual(my_section["patterns"][2], simple_field_enum_field)
-        self.assertEqual(my_section["patterns"][3], embedded_fields)
+        self.assertEqual(my_section["patterns"][0], simple_field_obj)
+        self.assertEqual(my_section["patterns"][1], enum_field_obj)
+        self.assertEqual(my_section["patterns"][2], simple_field_enum_field_obj)
+        self.assertEqual(my_section["patterns"][3], embedded_fields_obj)
 
     def test_create_my_grammar(self):
         my_grammar = create_my_grammar().to_obj()
