@@ -75,14 +75,24 @@ class TestSpareVsCode(unittest.TestCase):
     def test_simple_field(self):
         field = simple_field()
         p = re.compile(field.to_match())
+        # should match
         self.assertEqual(p.match("simple").group(), "simple")
+        # should not match
+        for k in ["complex", "other"]:
+            with self.subTest(k=k):
+                self.assertIsNone(group(p.match(k)))
 
     def test_enum_field(self):
         field = enum_field()
         p = re.compile(field.to_match())
+        # should match
         for k in ["keyword", "keyword1", "keyword2"]:
             with self.subTest(k=k):
                 self.assertEqual(group(p.match(k)), k)
+        # should not match
+        for k in ["keyword3", "key"]:
+            with self.subTest(k=k):
+                self.assertIsNone(group(p.match(k)))
 
     def test_line_field_seq(self):
         field = line_field_seq([simple_field(), simple_field()])
