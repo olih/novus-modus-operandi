@@ -67,6 +67,8 @@ embedded_fields_obj = {
     }
 }
 
+def group(matched):
+    return matched.group() if matched else None
 
 class TestSpareVsCode(unittest.TestCase):
 
@@ -78,7 +80,9 @@ class TestSpareVsCode(unittest.TestCase):
     def test_enum_field(self):
         field = enum_field()
         p = re.compile(field.to_match())
-        self.assertEqual(p.match("keyword2").group(), "keyword2")
+        for k in ["keyword1", "keyword2"]:
+            with self.subTest(k=k):
+                self.assertEqual(group(p.match(k)), k)
 
     def test_line_field_seq(self):
         field = line_field_seq([simple_field(), simple_field()])
