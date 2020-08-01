@@ -16,11 +16,11 @@ simple_field_obj = {
 }
 enum_field_obj = {
     'comment': 'enum-field',
-    'match': '^(keyword1|keyword2)$',
+    'match': '^(\\b(keyword|keyword1|keyword2)\\b)$',
     'captures': {
         '1': {
             'comment': 'enum-field',
-               'match': 'keyword1|keyword2',
+               'match': '\\b(keyword|keyword1|keyword2)\\b',
             'name': 'scope.extension_name'
         }
     }
@@ -28,7 +28,7 @@ enum_field_obj = {
 
 simple_field_enum_field_obj = {
     'comment': 'simple-field enum-field',
-    'match': '^(simple)[ ]*(keyword1|keyword2)$',
+    'match': '^(simple)[ ]*(\\b(keyword|keyword1|keyword2)\\b)$',
     'captures': {
         '1': {
             'comment': 'simple-field',
@@ -37,7 +37,7 @@ simple_field_enum_field_obj = {
         },
         '2': {
             'comment': 'enum-field',
-            'match': 'keyword1|keyword2',
+            'match': '\\b(keyword|keyword1|keyword2)\\b',
             'name': 'scope.extension_name'}
     }
 }
@@ -80,7 +80,7 @@ class TestSpareVsCode(unittest.TestCase):
     def test_enum_field(self):
         field = enum_field()
         p = re.compile(field.to_match())
-        for k in ["keyword1", "keyword2"]:
+        for k in ["keyword", "keyword1", "keyword2"]:
             with self.subTest(k=k):
                 self.assertEqual(group(p.match(k)), k)
 

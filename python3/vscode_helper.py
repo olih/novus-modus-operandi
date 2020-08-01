@@ -73,7 +73,8 @@ class TmEnumField(TmBaseField):
         self.scope = scope
     
     def to_match(self)->str:
-        return "|".join(sorted(list(set([escape_re(k.strip()) for k in self.keywords]))))
+        joined = "|".join(sorted(list(set([escape_re(k.strip()) for k in self.keywords]))))
+        return "\\b({})\\b".format(joined)
 
     def to_comment(self):
         return "{}".format(self.name)

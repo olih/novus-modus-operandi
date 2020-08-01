@@ -23,7 +23,7 @@ def enum_field():
         cfg,
         name = "enum-field",
         scope = "scope",
-        keywords = ["keyword1", "keyword2"]
+        keywords = ["keyword1", "keyword", "keyword2"]
         )
 
 def line_field_seq(fieldseq: List[TmBaseField]):
