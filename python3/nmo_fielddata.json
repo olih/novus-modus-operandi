@@ -1,0 +1,15 @@
+[
+{
+    "name": "name",
+    "spare-function": "simple_field",
+    "description": "description",
+    "scope": "scope",
+    "match": "match",
+    "keywords": [],
+    "start": "",
+    "finish": "",
+    "examples": [],
+    "counter-examples": []
+}
+
+]
