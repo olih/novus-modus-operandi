@@ -42,7 +42,7 @@ fragment access-constraints enum constraints [ ] values [ editable read-once wri
 
 fragment language csvenum constraints [ read-once || filename csvfile:nmo-language.csv || value-col 0 || title-col 1 ]-> multiple languages
 fragment mediatype csvenum constraints [ read-once || filename csvfile:nmo-mediatype.csv || value-col 0 || title-col 1 ]-> media types
-fragment fragment-id idstring constraints [ key || maxlength 30 ] charexp az followedby [ az 09 - ] -> description
+fragment fragment-id idstring constraints [ key || maxlength 30  || first-char-exp az || rest-char-exp (az 09 - )]  -> description
 fragment url url constraints [ ] values [ ] -> description
 
 --------

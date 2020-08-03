@@ -3,6 +3,8 @@ import sys
 import argparse
 import re
 from typing import List, Tuple, Dict, Set
+from enum import Enum, auto
+
 
 if not (sys.version_info.major == 3 and sys.version_info.minor >= 5):
     print("This script requires Python 3.5 or higher!")
@@ -145,3 +147,98 @@ class NMOHeaders:
 
     def get_short_prefixes(self)->Set[str]:
         return set([key for key, _ in self.prefixes.items()])
+
+#  marker, enum, int, float, fraction, time, email, idstring, freetext, csvenum, url
+class FragmentType(Enum):
+    MARKER = auto()
+    ENUM = auto()
+    INT = auto()
+    FLOAT = auto()
+    FRACTION = auto()
+    TIME = auto()
+    EMAIL = auto()
+    IDSTRING = auto()
+    FREETEXT = auto()
+    URL = auto()
+    CSVENUM = auto()
+    NOT_SUPPORTED = auto()
+    
+    @classmethod
+    def from_string(cls, value: str):
+        if value == "marker":
+            return FragmentType.MARKER
+        elif value == "enum":
+            return FragmentType.ENUM
+        elif value == "int":
+            return FragmentType.INT
+        elif value == "float":
+            return FragmentType.FLOAT
+        elif value == "fraction":
+            return FragmentType.FRACTION
+        elif value == "time":
+            return FragmentType.TIME
+        elif value == "email":
+            return FragmentType.EMAIL
+        elif value == "idstring":
+            return FragmentType.IDSTRING
+        elif value == "freetext":
+            return FragmentType.FREETEXT
+        elif value == "url":
+            return FragmentType.URL
+        elif value == "csvenum":
+            return FragmentType.CSVENUM
+        else:
+            return FragmentType.NOT_SUPPORTED
+    
+    @classmethod
+    def to_string(cls, value):
+        if value == FragmentType.MARKER:
+            return "marker"
+        elif value == FragmentType.ENUM:
+            return "enum"
+        elif value == FragmentType.INT:
+            return "int"
+        elif value == FragmentType.FLOAT:
+            return "float"
+        elif value == FragmentType.FRACTION:
+            return "fraction"
+        elif value == FragmentType.TIME:
+            return "time"
+        elif value == FragmentType.EMAIL:
+            return "email"
+        elif value == FragmentType.IDSTRING:
+            return "idstring"
+        elif value == FragmentType.FREETEXT:
+            return "freetext"
+        elif value == FragmentType.URL:
+            return "url"
+        elif value == FragmentType.CSVENUM:
+            return "csvenum"
+        else:
+            return "E"
+
+class NMOConstraint:
+    def __init__(self):
+        self.aa = ""
+
+class NMOValue:
+    def __init__(self):
+        self.aa = ""
+
+class NMOFragment:
+    def __init__(self, id: str, segmentType: FragmentType, constraints: List[NMOConstraint], values: List[NMOValue], description: str):
+        self.id = id
+        self.segmentType = segmentType
+        self.constraints = constraints
+        self.values = values
+        self.description = description
+
+    @classmethod
+    def from_string(cls, line: str):
+        cmd, fragmentId, fragmentType, constraintsKey, constraintsAndMore = line.split(" ", 4 )
+        assert cmd == "fragment", line
+        assert constraintsKey == "constraints", line
+        
+        return cls(brushid = brushId, xy = V2d.from_string(x + " " + y), scale = Fraction(scale), angle = Fraction(angle), tags = parse_dlmt_array(tagsInfo))
+
+ 
