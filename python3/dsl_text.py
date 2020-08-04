@@ -59,7 +59,7 @@ class SequencePersistence(BasePersistence):
             raise Exception("Chunk cannot be parsed: {}".format(strchunk)) # Should never happen if we check first
         trimmed = strchunk.strip()
         finished = trimmed.find(self.cfg.finish)
-        return (trimmed[1:finished], trimmed[finished:])
+        return (trimmed[1:finished], trimmed[finished+1:])
 
     def parse_as_list(self, strchunk: str)->(List[str], str):
         (extracted, remain) = self.parse_as_string(strchunk)
