@@ -71,16 +71,33 @@ class TestSequencePersistence(unittest.TestCase):
 class TestRegExpPersistence(unittest.TestCase):
 
     def test_satisfy_should_succeed(self):
-        nounRegexCfg = RegExpConfig().set_separator(" ").set_match("[a-z]+")
-        examples = [
-            ["one"],
-            ["one", "two", "three"]
+        use_cases = [
+            { "cfg": RegExpConfig().set_separator(" ").set_match("^([a-z]+)(\s+|$)"),
+              "examples": ["abc", "a"*10]
+            }
             ]
-        rePersist = RegExpPersistence(nounRegexCfg)
-        for ex in examples:
-                and_more = " and more"
-                chunkstr = rePersist.to_csv_string(list_random_padding(ex)) + and_more
-                with self.subTest(cfg=nounRegexCfg, ex=ex):
+        for use_case in use_cases:
+            cfg = use_case["cfg"]
+            rePersist = RegExpPersistence(cfg)
+            for ex in use_case["examples"]:
+                and_more = "and more"
+                chunkstr = ex + " " + and_more
+                with self.subTest(cfg=cfg, ex=ex):
                     self.assertTrue(rePersist.satisfy(chunkstr))
-                    self.assertSequenceEqual(rePersist.parse_as_list(chunkstr), (ex, and_more))
-    
+                    self.assertSequenceEqual(rePersist.parse_as_string(chunkstr), (ex, and_more))
+
+    def test_satisfy_should_fail(self):
+        use_cases = [
+            { "cfg": RegExpConfig().set_separator(" ").set_match("^([a-z]+)(\s+|$)"),
+              "examples": ["123", "abcDEF"]
+            }
+            ]
+        for use_case in use_cases:
+            cfg = use_case["cfg"]
+            rePersist = RegExpPersistence(cfg)
+            for ex in use_case["examples"]:
+                and_more = " and more"
+                chunkstr = ex + and_more
+                with self.subTest(cfg=cfg, ex=ex):
+                    self.assertFalse(rePersist.satisfy(chunkstr))
+

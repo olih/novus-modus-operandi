@@ -86,7 +86,6 @@ class RegExpConfig:
 
     def match_str(self, chunk: str):
         return self.pattern.match(chunk)
-       
 
 class RegExpPersistence(BasePersistence):
     def __init__(self, cfg: RegExpConfig):
@@ -96,14 +95,20 @@ class RegExpPersistence(BasePersistence):
         trimmed = strchunk.strip()
         finished = trimmed.find(self.cfg.separator)
         candidate = trimmed if finished < 0 else trimmed[:finished]
-        return self.cfg.match_str(candidate) is not None
+        return self.cfg.match_str(candidate) != None
 
     
     def parse_as_string(self, strchunk: str)->(str, str):
-        pass
+        satisfied = self.satisfy(strchunk)
+        if not satisfied:
+            raise Exception("Chunk cannot be parsed: {}".format(strchunk)) # Should never happen if we check first
+        trimmed = strchunk.strip()
+        finished = trimmed.find(self.cfg.separator)
+        candidate = (trimmed, "") if finished < 0 else (trimmed[:finished], trimmed[finished+1:])
+        return candidate
 
     def parse_as_list(self, strchunk: str)->(List[str], str):
-        pass
+        raise Exception("Not supported for RegExpPersistence")
      
     def to_csv_string(self, values: List[str])->str:
         return "".join(values)
