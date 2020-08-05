@@ -106,5 +106,5 @@ class RegExpPersistence(BasePersistence):
         pass
      
     def to_csv_string(self, values: List[str])->str:
-        pass
+        return "".join(values)
 
