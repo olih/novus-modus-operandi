@@ -1,7 +1,7 @@
 import unittest
 from random import randint, choice
 from typing import List, Tuple, Dict, Set, Optional
-from dsl_text import SequenceConfig, SequencePersistence, RegExpConfig, RegExpPersistence
+from dsl_text import SequenceConfig, SequencePersistence, RegExpConfig, RegExpPersistence, NumberConfig, IntegerPersistence, BriefAnswer
 
 squareSequenceCfg = SequenceConfig().set_start(
     "[").set_finish("]").set_separator(",")
@@ -72,7 +72,7 @@ class TestRegExpPersistence(unittest.TestCase):
 
     def test_satisfy_should_succeed(self):
         use_cases = [
-            { "cfg": RegExpConfig().set_separator(" ").set_match("^([a-z]+)(\s+|$)"),
+            { "cfg": RegExpConfig().set_separator(" ").set_match(r"^([a-z]+)(\s+|$)"),
               "examples": ["abc", "a"*10]
             }
             ]
@@ -88,7 +88,7 @@ class TestRegExpPersistence(unittest.TestCase):
 
     def test_satisfy_should_fail(self):
         use_cases = [
-            { "cfg": RegExpConfig().set_separator(" ").set_match("^([a-z]+)(\s+|$)"),
+            { "cfg": RegExpConfig().set_separator(" ").set_match(r"^([a-z]+)(\s+|$)"),
               "examples": ["123", "abcDEF"]
             }
             ]
@@ -101,3 +101,26 @@ class TestRegExpPersistence(unittest.TestCase):
                 with self.subTest(cfg=cfg, ex=ex):
                     self.assertFalse(rePersist.satisfy(chunkstr))
 
+class TestIntegerPersistence(unittest.TestCase):
+
+    def test_satisfy_should_succeed(self):
+        use_cases = [
+            { "cfg": NumberConfig().set_separator(" ").set_has_sign(BriefAnswer.Yes),
+              "examples": ["+1", "+123", "0", "-1234"]
+            },
+            { "cfg": NumberConfig().set_separator(" ").set_has_sign(BriefAnswer.No),
+              "examples": ["1", "123", "0"]
+            },
+            { "cfg": NumberConfig().set_separator(" ").set_has_sign(BriefAnswer.Maybe),
+              "examples": ["+1", "+123", "0", "-1234", "3"]
+            }
+            ]
+        for use_case in use_cases:
+            cfg = use_case["cfg"]
+            rePersist = IntegerPersistence(cfg)
+            for ex in use_case["examples"]:
+                and_more = "and more"
+                chunkstr = ex + " " + and_more
+                with self.subTest(cfg=cfg, ex=ex):
+                    self.assertTrue(rePersist.satisfy(chunkstr))
+                    # self.assertSequenceEqual(rePersist.parse_as_string(chunkstr), (ex, and_more))

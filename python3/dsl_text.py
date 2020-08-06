@@ -1,5 +1,6 @@
 from typing import List, Tuple, Dict, Set, Optional
 import re
+from enum import Enum, auto
 
 def discard_empty(lines):
     return [line.strip() for line in lines if len(line.strip())>0]
@@ -113,3 +114,61 @@ class RegExpPersistence(BasePersistence):
     def to_csv_string(self, values: List[str])->str:
         return "".join(values)
 
+class BriefAnswer(Enum):
+   Yes = auto()
+   No = auto()
+   Maybe = auto()
+
+class NumberConfig:
+    def __init__(self):
+        self.has_sign = BriefAnswer
+        self.separator = " "
+        self.pattern = re.compile(r"^(\+|-)?[0-9.]+")
+
+    def set_has_sign(self, has_sign: BriefAnswer):
+        self.has_sign = has_sign
+        return self
+
+    def set_separator(self, separator: str):
+        self.separator = separator
+        return self
+
+    def match_str(self, chunk: str):
+        return self.pattern.match(chunk)
+
+class IntegerPersistence(BasePersistence):
+    def __init__(self, cfg: NumberConfig):
+        self.cfg = cfg
+   
+    def satisfy(self, strchunk: str)->bool:
+        trimmed = strchunk.lstrip()
+        finished = trimmed.find(self.cfg.separator)
+        candidate = trimmed if finished < 0 else trimmed[:finished]
+        if self.cfg.match_str(candidate) == None:
+            return False
+        if candidate == "0":
+            return True
+        if (candidate[0] == "+" or candidate[0] == "-") and self.cfg.has_sign == BriefAnswer.No:
+            return False
+        if not (candidate[0] == "+" or candidate[0] == "-") and self.cfg.has_sign == BriefAnswer.Yes:
+            return False
+        try:
+            int(candidate)
+            return True
+        except:
+            return False
+    
+    def parse_as_string(self, strchunk: str)->(str, str):
+        satisfied = self.satisfy(strchunk)
+        if not satisfied:
+            raise Exception("Chunk cannot be parsed: {}".format(strchunk)) # Should never happen if we check first
+        trimmed = strchunk.strip()
+        finished = trimmed.find(self.cfg.separator)
+        candidate = (trimmed, "") if finished < 0 else (trimmed[:finished], trimmed[finished+1:])
+        return candidate
+
+    def parse_as_list(self, strchunk: str)->(List[str], str):
+        raise Exception("Not supported for RegExpPersistence")
+     
+    def to_csv_string(self, values: List[str])->str:
+        return "".join(values)
