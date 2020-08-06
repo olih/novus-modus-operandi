@@ -113,14 +113,50 @@ class TestIntegerPersistence(unittest.TestCase):
             },
             { "cfg": NumberConfig().set_separator(" ").set_has_sign(BriefAnswer.Maybe),
               "examples": ["+1", "+123", "0", "-1234", "3"]
-            }
-            ]
+            },
+            { "cfg": NumberConfig().set_separator(";").set_has_sign(BriefAnswer.Yes),
+              "examples": ["+1", "+123", "0", "-1234"]
+            },
+            { "cfg": NumberConfig().set_separator(",").set_has_sign(BriefAnswer.No),
+              "examples": ["1", "123", "0"]
+            },
+             ]
         for use_case in use_cases:
             cfg = use_case["cfg"]
             rePersist = IntegerPersistence(cfg)
             for ex in use_case["examples"]:
                 and_more = "and more"
-                chunkstr = ex + " " + and_more
+                sep = cfg.separator
+                chunkstr = ex + sep + and_more
                 with self.subTest(cfg=cfg, ex=ex):
                     self.assertTrue(rePersist.satisfy(chunkstr))
-                    # self.assertSequenceEqual(rePersist.parse_as_string(chunkstr), (ex, and_more))
+                    self.assertSequenceEqual(rePersist.parse_as_string(chunkstr), (ex, and_more))
+                    self.assertSequenceEqual(rePersist.parse_as_string(ex), (ex, ""))
+
+    def test_satisfy_should_fail(self):
+        use_cases = [
+            { "cfg": NumberConfig().set_separator(" ").set_has_sign(BriefAnswer.Yes),
+              "examples": ["+a", "+", ""]
+            },
+            { "cfg": NumberConfig().set_separator(" ").set_has_sign(BriefAnswer.No),
+              "examples": ["+a", "+", ""]
+            },
+            { "cfg": NumberConfig().set_separator(" ").set_has_sign(BriefAnswer.Maybe),
+              "examples": ["+a", "+", ""]
+            },
+            { "cfg": NumberConfig().set_separator(";").set_has_sign(BriefAnswer.Yes),
+              "examples": ["+a", "+", ""]
+            },
+            { "cfg": NumberConfig().set_separator(",").set_has_sign(BriefAnswer.No),
+              "examples": ["+a", "+", ""]
+            },
+             ]
+        for use_case in use_cases:
+            cfg = use_case["cfg"]
+            rePersist = IntegerPersistence(cfg)
+            for ex in use_case["examples"]:
+                and_more = "and more"
+                sep = cfg.separator
+                chunkstr = ex + sep + and_more
+                with self.subTest(cfg=cfg, ex=ex):
+                    self.assertFalse(rePersist.satisfy(chunkstr))
