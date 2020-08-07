@@ -281,3 +281,45 @@ class FractionPersistence(BasePersistence):
      
     def to_csv_string(self, values: List[str])->str:
         return "".join(values)
+
+class EnumConfig:
+    def __init__(self):
+        self.values = []
+        self.separator = " "
+
+    def set_separator(self, separator: str):
+        self.separator = separator
+        return self
+
+    def set_values(self, values: List[str]):
+        self.values = values
+        return self
+
+    def match_str(self, chunk: str):
+        return chunk in self.values
+
+class EnumPersistence(BasePersistence):
+    def __init__(self, cfg: EnumConfig):
+        self.cfg = cfg
+   
+    def satisfy(self, strchunk: str)->bool:
+        trimmed = strchunk.strip()
+        finished = trimmed.find(self.cfg.separator)
+        candidate = trimmed if finished < 0 else trimmed[:finished]
+        return self.cfg.match_str(candidate) != None
+
+    
+    def parse_as_string(self, strchunk: str)->(str, str):
+        satisfied = self.satisfy(strchunk)
+        if not satisfied:
+            raise Exception("Chunk cannot be parsed: {}".format(strchunk)) # Should never happen if we check first
+        trimmed = strchunk.strip()
+        finished = trimmed.find(self.cfg.separator)
+        candidate = (trimmed, "") if finished < 0 else (trimmed[:finished], trimmed[finished+1:])
+        return candidate
+
+    def parse_as_list(self, strchunk: str)->(List[str], str):
+        raise Exception("Not supported for RegExpPersistence")
+     
+    def to_csv_string(self, values: List[str])->str:
+        return "".join(values)
