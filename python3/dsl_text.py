@@ -306,7 +306,7 @@ class EnumPersistence(BasePersistence):
         trimmed = strchunk.strip()
         finished = trimmed.find(self.cfg.separator)
         candidate = trimmed if finished < 0 else trimmed[:finished]
-        return self.cfg.match_str(candidate) != None
+        return self.cfg.match_str(candidate)
 
     
     def parse_as_string(self, strchunk: str)->(str, str):
@@ -319,7 +319,7 @@ class EnumPersistence(BasePersistence):
         return candidate
 
     def parse_as_list(self, strchunk: str)->(List[str], str):
-        raise Exception("Not supported for RegExpPersistence")
+        raise Exception("Not supported for EnumPersistence")
      
     def to_csv_string(self, values: List[str])->str:
         return "".join(values)

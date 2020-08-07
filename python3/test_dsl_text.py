@@ -287,15 +287,19 @@ class TestEnumPersistence(unittest.TestCase):
     def test_satisfy_should_succeed(self):
         use_cases = [
             { "cfg": EnumConfig().set_separator(" ").set_values(["blue", "red", "yellow"]),
-              "examples": ["abc", "a"*10]
+              "examples": ["blue", "red", "yellow"]
+            },
+            { "cfg": EnumConfig().set_separator(";").set_values(["pretty blue", "maybe red", "surely yellow"]),
+              "examples": ["pretty blue", "maybe red"]
             }
             ]
         for use_case in use_cases:
             cfg = use_case["cfg"]
             rePersist = EnumPersistence(cfg)
             for ex in use_case["examples"]:
+                sep = cfg.separator
                 and_more = "and more"
-                chunkstr = ex + " " + and_more
+                chunkstr = ex + sep + and_more
                 with self.subTest(cfg=cfg, ex=ex):
                     self.assertTrue(rePersist.satisfy(chunkstr))
                     self.assertSequenceEqual(rePersist.parse_as_string(chunkstr), (ex, and_more))
@@ -303,14 +307,18 @@ class TestEnumPersistence(unittest.TestCase):
     def test_satisfy_should_fail(self):
         use_cases = [
             { "cfg": EnumConfig().set_separator(" ").set_values(["blue", "red", "yellow"]),
-              "examples": ["123", "abcDEF"]
+              "examples": ["nope", "redish", "infrared"]
+            },
+            { "cfg": EnumConfig().set_separator(";").set_values(["pretty blue", "maybe red", "surely yellow"]),
+              "examples": ["pretty", "blue"]
             }
             ]
         for use_case in use_cases:
             cfg = use_case["cfg"]
             rePersist = EnumPersistence(cfg)
             for ex in use_case["examples"]:
-                and_more = " and more"
-                chunkstr = ex + and_more
+                sep = cfg.separator
+                and_more = "and more"
+                chunkstr = ex + sep + and_more
                 with self.subTest(cfg=cfg, ex=ex):
                     self.assertFalse(rePersist.satisfy(chunkstr))
