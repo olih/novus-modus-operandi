@@ -1,7 +1,7 @@
 import unittest
 from random import randint, choice
 from typing import List, Tuple, Dict, Set, Optional
-from dsl_text import SequenceConfig, SequencePersistence, RegExpConfig, RegExpPersistence, IntegerConfig, IntegerPersistence, FloatConfig, FloatPersistence, BriefAnswer
+from dsl_text import SequenceConfig, SequencePersistence, RegExpConfig, RegExpPersistence, IntegerConfig, IntegerPersistence, FloatConfig, FloatPersistence, FractionConfig, FractionPersistence, BriefAnswer
 
 squareSequenceCfg = SequenceConfig().set_start(
     "[").set_finish("]").set_separator(",")
@@ -175,7 +175,7 @@ class TestFloatPersistence(unittest.TestCase):
               "examples": ["+1", "+123", "0", "-1234", "3", "4.12"]
             },
             { "cfg": FloatConfig().set_separator(";").set_has_sign(BriefAnswer.Yes),
-              "examples": ["+1", "+123", "0", "-1234", "2.15"]
+              "examples": ["+1", "+123", "0", "-1234", "+2.15"]
             },
             { "cfg": FloatConfig().set_separator(",").set_has_sign(BriefAnswer.No),
               "examples": ["1", "123", "0"]
@@ -214,6 +214,66 @@ class TestFloatPersistence(unittest.TestCase):
         for use_case in use_cases:
             cfg = use_case["cfg"]
             rePersist = FloatPersistence(cfg)
+            for ex in use_case["examples"]:
+                and_more = "and more"
+                sep = cfg.separator
+                chunkstr = ex + sep + and_more
+                with self.subTest(cfg=cfg, ex=ex):
+                    self.assertFalse(rePersist.satisfy(chunkstr))
+
+class TestFractionPersistence(unittest.TestCase):
+
+    def test_satisfy_should_succeed(self):
+        use_cases = [
+            { "cfg": FractionConfig().set_separator(" ").set_has_sign(BriefAnswer.Yes),
+              "examples": ["+1", "+123", "0", "-1234", "+0.19", "-3.14"]
+            },
+            { "cfg": FractionConfig().set_separator(" ").set_has_sign(BriefAnswer.No),
+              "examples": ["1", "123", "0", "2.13"]
+            },
+            { "cfg": FractionConfig().set_separator(" ").set_has_sign(BriefAnswer.Maybe),
+              "examples": ["+1", "+123", "0", "-1234", "3", "4.12"]
+            },
+            { "cfg": FractionConfig().set_separator(";").set_has_sign(BriefAnswer.Yes),
+              "examples": ["+1", "+123", "0", "-1234", "+2.15"]
+            },
+            { "cfg": FractionConfig().set_separator(",").set_has_sign(BriefAnswer.No),
+              "examples": ["1", "123", "0"]
+            },
+             ]
+        for use_case in use_cases:
+            cfg = use_case["cfg"]
+            rePersist = FractionPersistence(cfg)
+            for ex in use_case["examples"]:
+                and_more = "and more"
+                sep = cfg.separator
+                chunkstr = ex + sep + and_more
+                with self.subTest(cfg=cfg, ex=ex):
+                    self.assertTrue(rePersist.satisfy(chunkstr))
+                    self.assertSequenceEqual(rePersist.parse_as_string(chunkstr), (ex, and_more))
+                    self.assertSequenceEqual(rePersist.parse_as_string(ex), (ex, ""))
+
+    def test_satisfy_should_fail(self):
+        use_cases = [
+            { "cfg": FractionConfig().set_separator(" ").set_has_sign(BriefAnswer.Yes),
+              "examples": ["+a", "+", ""]
+            },
+            { "cfg": FractionConfig().set_separator(" ").set_has_sign(BriefAnswer.No),
+              "examples": ["+a", "+", ""]
+            },
+            { "cfg": FractionConfig().set_separator(" ").set_has_sign(BriefAnswer.Maybe),
+              "examples": ["+a", "+", ""]
+            },
+            { "cfg": FractionConfig().set_separator(";").set_has_sign(BriefAnswer.Yes),
+              "examples": ["+a", "+", ""]
+            },
+            { "cfg": FractionConfig().set_separator(",").set_has_sign(BriefAnswer.No),
+              "examples": ["+a", "+", ""]
+            },
+             ]
+        for use_case in use_cases:
+            cfg = use_case["cfg"]
+            rePersist = FractionPersistence(cfg)
             for ex in use_case["examples"]:
                 and_more = "and more"
                 sep = cfg.separator
