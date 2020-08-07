@@ -1,6 +1,7 @@
 from typing import List, Tuple, Dict, Set, Optional
 import re
 from enum import Enum, auto
+from fractions import Fraction
 
 def discard_empty(lines):
     return [line.strip() for line in lines if len(line.strip())>0]
@@ -231,7 +232,7 @@ class FractionConfig:
     def __init__(self):
         self.has_sign = BriefAnswer
         self.separator = " "
-        self.pattern = re.compile(r"^(\+|-)?[0-9.]+")
+        self.pattern = re.compile(r"^(\+|-)?(?:[1-9][0-9]*|0)(?:\/[1-9][0-9]*)?$")
 
     def set_has_sign(self, has_sign: BriefAnswer):
         self.has_sign = has_sign
@@ -261,7 +262,7 @@ class FractionPersistence(BasePersistence):
         if not (candidate[0] == "+" or candidate[0] == "-") and self.cfg.has_sign == BriefAnswer.Yes:
             return False
         try:
-            float(candidate)
+            Fraction(candidate)
             return True
         except:
             return False

@@ -136,10 +136,10 @@ class TestIntegerPersistence(unittest.TestCase):
     def test_satisfy_should_fail(self):
         use_cases = [
             { "cfg": IntegerConfig().set_separator(" ").set_has_sign(BriefAnswer.Yes),
-              "examples": ["+a", "+", "", "3.14"]
+              "examples": ["+a", "+", "", "3.14", "+3A"]
             },
             { "cfg": IntegerConfig().set_separator(" ").set_has_sign(BriefAnswer.No),
-              "examples": ["+a", "+", "",  "3.14"]
+              "examples": ["+a", "+", "",  "3.14", "3A"]
             },
             { "cfg": IntegerConfig().set_separator(" ").set_has_sign(BriefAnswer.Maybe),
               "examples": ["+a", "+", "", "3.14"]
@@ -196,10 +196,10 @@ class TestFloatPersistence(unittest.TestCase):
     def test_satisfy_should_fail(self):
         use_cases = [
             { "cfg": FloatConfig().set_separator(" ").set_has_sign(BriefAnswer.Yes),
-              "examples": ["+a", "+", ""]
+              "examples": ["+a", "+", "", "+3.14A"]
             },
             { "cfg": FloatConfig().set_separator(" ").set_has_sign(BriefAnswer.No),
-              "examples": ["+a", "+", ""]
+              "examples": ["+a", "+", "", "0.12B"]
             },
             { "cfg": FloatConfig().set_separator(" ").set_has_sign(BriefAnswer.Maybe),
               "examples": ["+a", "+", ""]
@@ -226,19 +226,19 @@ class TestFractionPersistence(unittest.TestCase):
     def test_satisfy_should_succeed(self):
         use_cases = [
             { "cfg": FractionConfig().set_separator(" ").set_has_sign(BriefAnswer.Yes),
-              "examples": ["+1", "+123", "0", "-1234", "+0.19", "-3.14"]
+              "examples": ["+1", "+123", "0", "-1234", "+1/2", "-123/6867"]
             },
             { "cfg": FractionConfig().set_separator(" ").set_has_sign(BriefAnswer.No),
-              "examples": ["1", "123", "0", "2.13"]
+              "examples": ["1", "123", "0", "2/3"]
             },
             { "cfg": FractionConfig().set_separator(" ").set_has_sign(BriefAnswer.Maybe),
-              "examples": ["+1", "+123", "0", "-1234", "3", "4.12"]
+              "examples": ["+1", "+123", "0", "-1234", "3", "3/4", "-1/2"]
             },
             { "cfg": FractionConfig().set_separator(";").set_has_sign(BriefAnswer.Yes),
-              "examples": ["+1", "+123", "0", "-1234", "+2.15"]
+              "examples": ["+1", "+123", "0", "-1234", "+1/2", "-123/6867"]
             },
             { "cfg": FractionConfig().set_separator(",").set_has_sign(BriefAnswer.No),
-              "examples": ["1", "123", "0"]
+              "examples": ["1", "123", "0", "1/4"]
             },
              ]
         for use_case in use_cases:
@@ -256,10 +256,10 @@ class TestFractionPersistence(unittest.TestCase):
     def test_satisfy_should_fail(self):
         use_cases = [
             { "cfg": FractionConfig().set_separator(" ").set_has_sign(BriefAnswer.Yes),
-              "examples": ["+a", "+", ""]
+              "examples": ["+a", "+", "", "2.13", "-3.14", "++1/4", "+-1/4"]
             },
             { "cfg": FractionConfig().set_separator(" ").set_has_sign(BriefAnswer.No),
-              "examples": ["+a", "+", ""]
+              "examples": ["+a", "+", "+1/2"]
             },
             { "cfg": FractionConfig().set_separator(" ").set_has_sign(BriefAnswer.Maybe),
               "examples": ["+a", "+", ""]
