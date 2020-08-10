@@ -7,6 +7,9 @@ def discard_empty(lines):
     return [line.strip() for line in lines if len(line.strip())>0]
 
 class BasePersistence:
+    def get_name(self)->str:
+        pass
+
     def satisfy(self, strchunk: str)->bool:
         pass
     
@@ -19,11 +22,29 @@ class BasePersistence:
     def to_csv_string(self, values: List[str])->str:
         pass
 
+class PersistenceContainer:    
+    def todo(self)->bool:
+        return True
+
+class PersistenceSequence(PersistenceContainer):
+    def __init__(self, persistences: List[BasePersistence | PersistenceContainer]):
+        self.persistences = persistences
+             
+class PersistenceAlternatives(PersistenceContainer):
+    def __init__(self, persistences: List[BasePersistence | PersistenceContainer]):
+        self.persistences = persistences
+
 class SequenceConfig:
     def __init__(self):
+        self.name = "seq-no-name"
         self.start = "["
         self.finish = "]"
         self.separator = ","
+        self.container = PersistenceAlternatives([])
+
+    def set_name(self, name: str):
+        self.name = name
+        return self
 
     def set_start(self, start: str):
         self.start = start
@@ -35,6 +56,10 @@ class SequenceConfig:
 
     def set_separator(self, separator: str):
         self.separator = separator
+        return self
+
+    def set_container(self, container: PersistenceContainer):
+        self.container = container
         return self
 
 class SequencePersistence(BasePersistence):
@@ -73,9 +98,14 @@ class SequencePersistence(BasePersistence):
 
 class RegExpConfig:
     def __init__(self):
+        self.name = "regex-no-name"
         self.match = ".*"
         self.pattern = re.compile(".*")
         self.separator = " "
+
+    def set_name(self, name: str):
+        self.name = name
+        return self
 
     def set_match(self, match: str):
         self.match = match
@@ -122,9 +152,14 @@ class BriefAnswer(Enum):
 
 class IntegerConfig:
     def __init__(self):
+        self.name = "int-no-name"
         self.has_sign = BriefAnswer
         self.separator = " "
         self.pattern = re.compile(r"^(\+|-)?[0-9]+")
+
+    def set_name(self, name: str):
+        self.name = name
+        return self
 
     def set_has_sign(self, has_sign: BriefAnswer):
         self.has_sign = has_sign
@@ -176,9 +211,14 @@ class IntegerPersistence(BasePersistence):
 
 class FloatConfig:
     def __init__(self):
+        self.name = "float-no-name"
         self.has_sign = BriefAnswer
         self.separator = " "
         self.pattern = re.compile(r"^(\+|-)?[0-9.]+")
+    
+    def set_name(self, name: str):
+        self.name = name
+        return self
 
     def set_has_sign(self, has_sign: BriefAnswer):
         self.has_sign = has_sign
@@ -230,9 +270,14 @@ class FloatPersistence(BasePersistence):
 
 class FractionConfig:
     def __init__(self):
+        self.name = "fraction-no-name"
         self.has_sign = BriefAnswer
         self.separator = " "
         self.pattern = re.compile(r"^(\+|-)?(?:[1-9][0-9]*|0)(?:\/[1-9][0-9]*)?$")
+    
+    def set_name(self, name: str):
+        self.name = name
+        return self
 
     def set_has_sign(self, has_sign: BriefAnswer):
         self.has_sign = has_sign
@@ -284,8 +329,13 @@ class FractionPersistence(BasePersistence):
 
 class EnumConfig:
     def __init__(self):
+        self.name = "enum-no-name"
         self.values = []
         self.separator = " "
+    
+    def set_name(self, name: str):
+        self.name = name
+        return self
 
     def set_separator(self, separator: str):
         self.separator = separator
