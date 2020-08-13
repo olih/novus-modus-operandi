@@ -6,6 +6,10 @@ from fractions import Fraction
 def discard_empty(lines):
     return [line.strip() for line in lines if len(line.strip())>0]
 
+class PersistenceParserError(Exception):
+    """Raised when the input cannot be parsed"""
+    pass
+
 class BasePersistence:
     def get_name(self)->str:
         pass

@@ -1,14 +1,11 @@
-from typing import List, Tuple, Dict, Set
+from typing import List, Tuple, Dict, Set, Optional
 from fractions import Fraction
 from enum import Enum, auto
 from dsl_text import SequenceConfig, SequencePersistence, RegExpConfig, RegExpPersistence, IntegerConfig, IntegerPersistence, BriefAnswer
 from dsl_text import FloatConfig, FloatPersistence, FractionConfig, FractionPersistence, EnumConfig, EnumPersistence
+from dsl_text import PersistenceSequence, PersistenceParserError
 
 
-
-# Persistence
-
-IntegerPersistence(IntegerConfig.set_name())
 
 # Conversion
 
@@ -91,7 +88,7 @@ class SpareItem:
             )
 
 
-def items_to_nmo_str(items: =List[SpareItem]):
+def items_to_nmo_str(items: List[SpareItem]):
     return " ".join([items.to_nmo_string() for item in items])
 
 
@@ -172,9 +169,43 @@ class SpareRow:
             id_to_nmo_str(self.id),
             int_to_nmo_str(self.v_int),
             url_to_nmo_str(self.url),
-            tags_to_nmo_str(self.tags),
+            str(self.tags),
             emails_to_nmo_str(self.emails),
-            ColorName.to_nmo_string(self.color_name)
-            items_to_nmo_str(self.items),
-            freetext_to_nmo_str(self.description)
+            ColorName.to_nmo_string(self.color_name),
+            str(self.items),
+            str(self.description)
             )
+
+# Persistence
+
+class SpareItemParser:
+    def __init__(self):
+        self.marker1 = RegExpPersistence(RegExpConfig().set_name("marker1"))
+        self.v_float= FloatPersistence(FloatConfig().set_name("v_float"))
+        self.v_fraction= IntegerPersistence(FractionConfig().set_name("v_fraction"))
+
+    def parse(self, chunk: str)->SpareItem:
+        spareItem = SpareItem()
+        trimmed = chunk.strip()
+        if not self.marker1.satisfy(trimmed):
+            raise PersistenceParserError("Expected {} but got {}".format("marker1", trimmed))
+        return spareItem
+
+
+class SpareRowParser:
+    def __init__(self):
+        self.id = RegExpPersistence(RegExpConfig().set_name("id"))
+        self.v_int= IntegerPersistence(IntegerConfig().set_name("v_int"))
+        self.url= RegExpPersistence(RegExpConfig().set_name("url"))
+        self.tag = RegExpPersistence(RegExpConfig().set_name("tag"))
+        self.tags = SequencePersistence(SequenceConfig().set_name("tags"))
+        self.email = RegExpPersistence(RegExpConfig().set_name("email"))
+        self.emails: SequencePersistence(SequenceConfig().set_name("emails"))
+        self.color_name= EnumPersistence(EnumConfig().set_name("color_name"))
+        self.item = SpareItemParser()
+        self.items = SequencePersistence(SequenceConfig().set_name("items"))
+        self.description = RegExpPersistence(RegExpConfig().set_name("description"))
+
+    def parse(self, chunk: str)->SpareRow:
+        spareRow = SpareRow()
+        return spareRow
