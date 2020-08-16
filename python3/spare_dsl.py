@@ -3,7 +3,7 @@ from fractions import Fraction
 from enum import Enum, auto
 from dsl_text import SequenceConfig, SequencePersistence, RegExpConfig, RegExpPersistence, IntegerConfig, IntegerPersistence, BriefAnswer
 from dsl_text import FloatConfig, FloatPersistence, FractionConfig, FractionPersistence, EnumConfig, EnumPersistence
-from dsl_text import PersistenceSequence, PersistenceParserError
+from dsl_text import PersistenceSequence, PersistenceParserError, ParsingContext
 
 
 
@@ -62,9 +62,15 @@ class SpareItem:
             self.v_float = value
             return self
 
+    def set_v_float_as_str(self, value: str):
+        return self.set_v_float(float(value))
+
     def set_v_fraction(self, value: Fraction):
             self.v_fraction = value
             return self
+    
+    def set_v_fraction_as_str(self, value: str):
+            return self.set_v_fraction(Fraction(value))
 
     def to_string(self):
         return " ".join([
@@ -184,11 +190,20 @@ class SpareItemParser:
         self.v_float= FloatPersistence(FloatConfig().set_name("v_float"))
         self.v_fraction= IntegerPersistence(FractionConfig().set_name("v_fraction"))
 
-    def parse(self, chunk: str)->SpareItem:
+    def parse(self, ctx: ParsingContext, chunk: str)->SpareItem:
+        if not self.marker1.satisfy(chunk):
+            raise PersistenceParserError(ctx, "marker1", chunk)
+        (_, after_marker1) = self.marker1.parse_as_string(chunk)
+        if not self.v_float.satisfy(after_marker1):
+            raise PersistenceParserError(ctx, "v_float", after_marker1)
+        (value_v_float, after_v_float) = self.v_float.parse_as_string(after_marker1)
+        if not self.v_fraction.satisfy(after_v_float):
+            raise PersistenceParserError(ctx, "v_fraction", after_v_float)
+        (value_v_fraction, _) = self.v_fraction.parse_as_string(after_v_float)
+
         spareItem = SpareItem()
-        trimmed = chunk.strip()
-        if not self.marker1.satisfy(trimmed):
-            raise PersistenceParserError("Expected {} but got {}".format("marker1", trimmed))
+        spareItem.set_v_float_as_str(value_v_float)
+        spareItem.set_v_fraction_as_str(value_v_fraction)
         return spareItem
 
 

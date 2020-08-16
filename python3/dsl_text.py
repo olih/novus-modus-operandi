@@ -6,9 +6,30 @@ from fractions import Fraction
 def discard_empty(lines):
     return [line.strip() for line in lines if len(line.strip())>0]
 
+class ParsingContext:
+    def __init__(self):
+        self.id = "no-id"
+        self.line_number = 0
+    
+    def set_id(self, id: str):
+        self.id = id
+        return self
+
+    def set_line_number(self, line_number: int):
+        self.line_number = line_number
+        return self
+
+    def to_string(self):
+        return "Id: {} Ln: {}".format(self.id, self.line_number)
+
+    def __str__(self):
+        return self.to_string()
+
 class PersistenceParserError(Exception):
     """Raised when the input cannot be parsed"""
-    pass
+    def __init__(self, context: ParsingContext, name: str, actual: str):
+        message = "Expected {} for {} but got {}".format(name, context, actual)
+        super.__init__(message)
 
 class BasePersistence:
     def get_name(self)->str:
