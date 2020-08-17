@@ -109,9 +109,16 @@ class SpareRow:
         self.items: List[SpareItem] = []
         self.description: str = ""
 
+    def set_id(self, value: str):
+            self.id = value
+            return self
+
     def set_v_int(self, value: int):
             self.v_int = value
             return self
+    
+    def set_v_int_as_str(self, value: str):
+        return self.set_v_int(int(value))
 
     def set_url(self, value: str):
             self.url = value
@@ -136,6 +143,9 @@ class SpareRow:
     def set_color_name(self, value: ColorName):
         self.color_name = value
         return self
+
+    def set_color_name_as_str(self, value: str):
+        return self.set_color_name(ColorName.from_nmo_string(value))
 
     def set_items(self, items: List[SpareItem]):
             self.items = items
@@ -209,6 +219,7 @@ class SpareItemParser:
 
 class SpareRowParser:
     def __init__(self):
+        self.marker_row = RegExpPersistence(RegExpConfig().set_name("marker_row"))
         self.id = RegExpPersistence(RegExpConfig().set_name("id"))
         self.v_int= IntegerPersistence(IntegerConfig().set_name("v_int"))
         self.url= RegExpPersistence(RegExpConfig().set_name("url"))
@@ -221,6 +232,46 @@ class SpareRowParser:
         self.items = SequencePersistence(SequenceConfig().set_name("items"))
         self.description = RegExpPersistence(RegExpConfig().set_name("description"))
 
-    def parse(self, chunk: str)->SpareRow:
+    def parse(self, ctx: ParsingContext, chunk: str)->SpareRow:
+        if not self.marker_row.satisfy(chunk):
+            raise PersistenceParserError(ctx, "marker_row", chunk)
+        (_, after_marker_row) = self.id.parse_as_string(chunk)
+        if not self.id.satisfy(after_marker_row):
+            raise PersistenceParserError(ctx, "id", after_marker_row)
+        (id, after_id) = self.id.parse_as_string(after_marker_row)
+        if not self.v_int.satisfy(after_id):
+            raise PersistenceParserError(ctx, "v_int", after_id)
+        (v_int, after_v_int) = self.id.parse_as_string(after_marker_row)
+        if not self.url.satisfy(after_v_int):
+            raise PersistenceParserError(ctx, "url", after_v_int)
+        (url, after_url) = self.url.parse_as_string(after_v_int)
+        if not self.tags.satisfy(after_url):
+            raise PersistenceParserError(ctx, "tags", after_url)
+        (tag_strlist, after_tags) = self.tags.parse_as_list(after_url)
+        for tag in tag_strlist:
+            if not self.tag.satisfy(tag):
+                raise PersistenceParserError(ctx, "tag", tag)
+        tags = set([self.tag.parse_as_string(tag)[0] for tag in tag_strlist])
+        if not self.emails.satisfy(after_tags):
+            raise PersistenceParserError(ctx, "emails", after_tags)
+        (email_strlist, after_emails) = self.emails.parse_as_list(after_tags)
+        for email in email_strlist:
+            if not self.email.satisfy(email):
+                raise PersistenceParserError(ctx, "email", email)
+        emails = [self.email.parse_as_string(email)[0] for email in email_strlist]
+        if not self.color_name.satisfy(after_emails):
+            raise PersistenceParserError(ctx, "color_name", after_emails)
+        (color_name, after_color_name) = self.url.parse_as_string(after_emails)
+        if not self.items.satisfy(after_color_name):
+            raise PersistenceParserError(ctx, "items", after_color_name)
+        (items_strlist, _) = self.items.parse_as_list(after_color_name)
+        items = [self.item.parse(ctx, item) for item in items_strlist]
         spareRow = SpareRow()
+        spareRow.set_id(id)
+        spareRow.set_v_int_as_str(v_int)
+        spareRow.set_url(url)
+        spareRow.set_tags(tags)
+        spareRow.set_emails(emails)
+        spareRow.set_color_name_as_str(color_name)
+        spareRow.set_items(items)
         return spareRow
