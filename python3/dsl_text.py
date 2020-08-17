@@ -1,4 +1,4 @@
-from typing import List, Tuple, Dict, Set, Optional
+from typing import List, Tuple, Dict, Set, Optional, Union
 import re
 from enum import Enum, auto
 from fractions import Fraction
@@ -29,7 +29,7 @@ class PersistenceParserError(Exception):
     """Raised when the input cannot be parsed"""
     def __init__(self, context: ParsingContext, name: str, actual: str):
         message = "Expected {} for {} but got {}".format(name, context, actual)
-        super.__init__(message)
+        super().__init__(message)
 
 class BasePersistence:
     def get_name(self)->str:
@@ -52,11 +52,13 @@ class PersistenceContainer:
         return True
 
 class PersistenceSequence(PersistenceContainer):
-    def __init__(self, persistences: List[BasePersistence | PersistenceContainer]):
+    def __init__(self, persistences: List[Union[BasePersistence, PersistenceContainer]]):
+        super().__init__()
         self.persistences = persistences
              
 class PersistenceAlternatives(PersistenceContainer):
-    def __init__(self, persistences: List[BasePersistence | PersistenceContainer]):
+    def __init__(self, persistences: List[Union[BasePersistence, PersistenceContainer]]):
+        super().__init__()
         self.persistences = persistences
 
 class SequenceConfig:
