@@ -180,7 +180,7 @@ class BriefAnswer(Enum):
 class IntegerConfig:
     def __init__(self):
         self.name = "int-no-name"
-        self.has_sign = BriefAnswer
+        self.has_sign = BriefAnswer.Maybe
         self.separator = " "
         self.pattern = re.compile(r"^(\+|-)?[0-9]+")
 

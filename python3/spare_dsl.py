@@ -181,7 +181,7 @@ class SpareRow:
             return self.to_string() == str(other)
 
     def to_nmo_string(self):
-       return "id {} v_int {} url {} tags {} emails {} color_name {} items {} -> {}".format(
+       return "row {} {} {} tags {} emails {} {} items {} -> {}".format(
             id_to_nmo_str(self.id),
             int_to_nmo_str(self.v_int),
             url_to_nmo_str(self.url),
@@ -219,11 +219,12 @@ class SpareItemParser:
 
 class SpareRowParser:
     def __init__(self):
-        self.marker_row = RegExpPersistence(RegExpConfig().set_name("marker_row"))
-        self.id = RegExpPersistence(RegExpConfig().set_name("id"))
+        self.marker_row = RegExpPersistence(RegExpConfig().set_name("marker_row").set_match("row"))
+        self.id = RegExpPersistence(RegExpConfig().set_name("id").set_match(r"[a-z0-9_-]"))
         self.v_int= IntegerPersistence(IntegerConfig().set_name("v_int"))
-        self.url= RegExpPersistence(RegExpConfig().set_name("url"))
+        self.url= RegExpPersistence(RegExpConfig().set_name("url").set_match(r"https?://[A-Za-z0-9/_.-]+"))
         self.tag = RegExpPersistence(RegExpConfig().set_name("tag"))
+        self.marker_tags = RegExpPersistence(RegExpConfig().set_name("marker_tags").set_match("tags"))
         self.tags = SequencePersistence(SequenceConfig().set_name("tags"))
         self.email = RegExpPersistence(RegExpConfig().set_name("email"))
         self.emails: SequencePersistence(SequenceConfig().set_name("emails"))
@@ -235,19 +236,22 @@ class SpareRowParser:
     def parse(self, ctx: ParsingContext, chunk: str)->SpareRow:
         if not self.marker_row.satisfy(chunk):
             raise PersistenceParserError(ctx, "marker_row", chunk)
-        (_, after_marker_row) = self.id.parse_as_string(chunk)
+        (_, after_marker_row) = self.marker_row.parse_as_string(chunk)
         if not self.id.satisfy(after_marker_row):
             raise PersistenceParserError(ctx, "id", after_marker_row)
         (id, after_id) = self.id.parse_as_string(after_marker_row)
         if not self.v_int.satisfy(after_id):
             raise PersistenceParserError(ctx, "v_int", after_id)
-        (v_int, after_v_int) = self.id.parse_as_string(after_marker_row)
+        (v_int, after_v_int) = self.v_int.parse_as_string(after_marker_row)
         if not self.url.satisfy(after_v_int):
             raise PersistenceParserError(ctx, "url", after_v_int)
         (url, after_url) = self.url.parse_as_string(after_v_int)
-        if not self.tags.satisfy(after_url):
-            raise PersistenceParserError(ctx, "tags", after_url)
-        (tag_strlist, after_tags) = self.tags.parse_as_list(after_url)
+        if not self.marker_tags.satisfy(after_url):
+            raise PersistenceParserError(ctx, "marker_tags", after_url)
+        (_, after_marker_tags) = self.marker_tags.parse_as_string(after_url)
+        if not self.tags.satisfy(after_marker_tags):
+            raise PersistenceParserError(ctx, "tags", after_marker_tags)
+        (tag_strlist, after_tags) = self.tags.parse_as_list(after_marker_tags)
         for tag in tag_strlist:
             if not self.tag.satisfy(tag):
                 raise PersistenceParserError(ctx, "tag", tag)
