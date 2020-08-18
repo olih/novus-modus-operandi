@@ -47,6 +47,31 @@ class BasePersistence:
     def to_csv_string(self, values: List[str])->str:
         pass
 
+    def consume_marker(self, ctx: ParsingContext, strchunk: str):
+        if not self.satisfy(strchunk):
+            raise PersistenceParserError(ctx, self.get_name(), strchunk)
+        self.parse_as_string(strchunk)
+        return self.parse_as_string(strchunk)[0]
+
+    def parse_ctx_string(self, ctx: ParsingContext, strchunk: str)->(str, str):
+        if not self.satisfy(strchunk):
+                raise PersistenceParserError(ctx, self.get_name(), strchunk)
+        return self.parse_as_string(strchunk)
+
+    def parse_ctx_list(self, ctx: ParsingContext, strchunk: str)->(List[str], str):
+        if not self.satisfy(strchunk):
+                raise PersistenceParserError(ctx, self.get_name(), strchunk)
+        return self.parse_as_list(strchunk)
+
+    def list_satisfy_ctx(self, ctx: ParsingContext, chunks: List[str]):
+        for chunk in chunks:
+            if not self.satisfy(chunk):
+                raise PersistenceParserError(ctx, self.get_name(), chunk)
+
+    def list_parse_string_ctx(self, ctx: ParsingContext, chunks: List[str])->List[str]:
+        return [self.parse_ctx_string(ctx, chunk) for chunk in chunks]
+            
+
 class PersistenceContainer:    
     def todo(self)->bool:
         return True

@@ -3,7 +3,7 @@ from fractions import Fraction
 from enum import Enum, auto
 from dsl_text import SequenceConfig, SequencePersistence, RegExpConfig, RegExpPersistence, IntegerConfig, IntegerPersistence, BriefAnswer
 from dsl_text import FloatConfig, FloatPersistence, FractionConfig, FractionPersistence, EnumConfig, EnumPersistence
-from dsl_text import PersistenceSequence, PersistenceParserError, ParsingContext
+from dsl_text import PersistenceSequence, PersistenceParserError, ParsingContext, BasePersistence
 
 
 
@@ -192,6 +192,7 @@ class SpareRow:
             str(self.description)
             )
 
+
 # Persistence
 
 class SpareItemParser:
@@ -201,15 +202,9 @@ class SpareItemParser:
         self.v_fraction= IntegerPersistence(FractionConfig().set_name("v_fraction"))
 
     def parse(self, ctx: ParsingContext, chunk: str)->SpareItem:
-        if not self.marker1.satisfy(chunk):
-            raise PersistenceParserError(ctx, "marker1", chunk)
-        (_, after_marker1) = self.marker1.parse_as_string(chunk)
-        if not self.v_float.satisfy(after_marker1):
-            raise PersistenceParserError(ctx, "v_float", after_marker1)
-        (value_v_float, after_v_float) = self.v_float.parse_as_string(after_marker1)
-        if not self.v_fraction.satisfy(after_v_float):
-            raise PersistenceParserError(ctx, "v_fraction", after_v_float)
-        (value_v_fraction, _) = self.v_fraction.parse_as_string(after_v_float)
+        after_marker1 = self.marker1.consume_marker(ctx, chunk)
+        (value_v_float, after_v_float) = self.v_float.parse_ctx_string(ctx, after_marker1)
+        (value_v_fraction, _) = self.v_fraction.parse_ctx_string(ctx, after_v_float)
 
         spareItem = SpareItem()
         spareItem.set_v_float_as_str(value_v_float)
@@ -234,41 +229,19 @@ class SpareRowParser:
         self.description = RegExpPersistence(RegExpConfig().set_name("description"))
 
     def parse(self, ctx: ParsingContext, chunk: str)->SpareRow:
-        if not self.marker_row.satisfy(chunk):
-            raise PersistenceParserError(ctx, "marker_row", chunk)
-        (_, after_marker_row) = self.marker_row.parse_as_string(chunk)
-        if not self.id.satisfy(after_marker_row):
-            raise PersistenceParserError(ctx, "id", after_marker_row)
-        (id, after_id) = self.id.parse_as_string(after_marker_row)
-        if not self.v_int.satisfy(after_id):
-            raise PersistenceParserError(ctx, "v_int", after_id)
-        (v_int, after_v_int) = self.v_int.parse_as_string(after_marker_row)
-        if not self.url.satisfy(after_v_int):
-            raise PersistenceParserError(ctx, "url", after_v_int)
-        (url, after_url) = self.url.parse_as_string(after_v_int)
-        if not self.marker_tags.satisfy(after_url):
-            raise PersistenceParserError(ctx, "marker_tags", after_url)
-        (_, after_marker_tags) = self.marker_tags.parse_as_string(after_url)
-        if not self.tags.satisfy(after_marker_tags):
-            raise PersistenceParserError(ctx, "tags", after_marker_tags)
-        (tag_strlist, after_tags) = self.tags.parse_as_list(after_marker_tags)
-        for tag in tag_strlist:
-            if not self.tag.satisfy(tag):
-                raise PersistenceParserError(ctx, "tag", tag)
-        tags = set([self.tag.parse_as_string(tag)[0] for tag in tag_strlist])
-        if not self.emails.satisfy(after_tags):
-            raise PersistenceParserError(ctx, "emails", after_tags)
-        (email_strlist, after_emails) = self.emails.parse_as_list(after_tags)
-        for email in email_strlist:
-            if not self.email.satisfy(email):
-                raise PersistenceParserError(ctx, "email", email)
-        emails = [self.email.parse_as_string(email)[0] for email in email_strlist]
-        if not self.color_name.satisfy(after_emails):
-            raise PersistenceParserError(ctx, "color_name", after_emails)
-        (color_name, after_color_name) = self.url.parse_as_string(after_emails)
-        if not self.items.satisfy(after_color_name):
-            raise PersistenceParserError(ctx, "items", after_color_name)
-        (items_strlist, _) = self.items.parse_as_list(after_color_name)
+        after_marker_row = self.marker_row.consume_marker(ctx, chunk)
+        (id, after_id) = self.id.parse_ctx_string(ctx, after_marker_row)
+        (v_int, after_v_int) = self.v_int.parse_ctx_string(ctx, after_id)
+        (url, after_url) = self.url.parse_ctx_string(ctx, after_v_int)
+        after_marker_tags = self.marker_tags.consume_marker(ctx, after_url)
+        (tag_strlist, after_tags) = self.tags.parse_ctx_list(ctx, after_marker_tags)
+        self.tag.list_satisfy_ctx(ctx, tag_strlist)
+        tags = set(self.tag.list_parse_string_ctx(ctx, tag_strlist))
+        (email_strlist, after_emails) = self.emails.parse_ctx_list(ctx, after_tags)
+        self.email.list_satisfy_ctx(ctx, email_strlist)
+        emails = self.email.list_parse_string_ctx(ctx, email_strlist)
+        (color_name, after_color_name) = self.url.parse_ctx_string(ctx, after_emails)
+        (items_strlist, _) = self.items.parse_ctx_list(ctx, after_color_name)
         items = [self.item.parse(ctx, item) for item in items_strlist]
         spareRow = SpareRow()
         spareRow.set_id(id)
