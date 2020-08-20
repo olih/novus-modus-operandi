@@ -51,7 +51,7 @@ class BasePersistence:
         if not self.satisfy(strchunk):
             raise PersistenceParserError(ctx, self.get_name(), strchunk)
         self.parse_as_string(strchunk)
-        return self.parse_as_string(strchunk)[0]
+        return self.parse_as_string(strchunk)[1]
 
     def parse_ctx_string(self, ctx: ParsingContext, strchunk: str)->(str, str):
         if not self.satisfy(strchunk):
@@ -117,7 +117,10 @@ class SequenceConfig:
 class SequencePersistence(BasePersistence):
     def __init__(self, cfg: SequenceConfig):
         self.cfg = cfg
-    
+
+    def get_name(self)->str:
+        return self.cfg.name
+
     def _strip_string_array(self, line: str)->List[str]:
         return [separated.strip() for separated in line.split(self.cfg.separator) if separated.strip() != ""]
 
@@ -174,6 +177,9 @@ class RegExpConfig:
 class RegExpPersistence(BasePersistence):
     def __init__(self, cfg: RegExpConfig):
         self.cfg = cfg
+    
+    def get_name(self)->str:
+        return self.cfg.name
    
     def satisfy(self, strchunk: str)->bool:
         trimmed = strchunk.strip()
@@ -227,7 +233,10 @@ class IntegerConfig:
 class IntegerPersistence(BasePersistence):
     def __init__(self, cfg: IntegerConfig):
         self.cfg = cfg
-   
+
+    def get_name(self)->str:
+        return self.cfg.name
+
     def satisfy(self, strchunk: str)->bool:
         trimmed = strchunk.lstrip()
         finished = trimmed.find(self.cfg.separator)
@@ -286,7 +295,10 @@ class FloatConfig:
 class FloatPersistence(BasePersistence):
     def __init__(self, cfg: FloatConfig):
         self.cfg = cfg
-   
+
+    def get_name(self)->str:
+        return self.cfg.name
+
     def satisfy(self, strchunk: str)->bool:
         trimmed = strchunk.lstrip()
         finished = trimmed.find(self.cfg.separator)
@@ -345,7 +357,10 @@ class FractionConfig:
 class FractionPersistence(BasePersistence):
     def __init__(self, cfg: FractionConfig):
         self.cfg = cfg
-   
+
+    def get_name(self)->str:
+        return self.cfg.name
+
     def satisfy(self, strchunk: str)->bool:
         trimmed = strchunk.lstrip()
         finished = trimmed.find(self.cfg.separator)
@@ -403,13 +418,15 @@ class EnumConfig:
 class EnumPersistence(BasePersistence):
     def __init__(self, cfg: EnumConfig):
         self.cfg = cfg
-   
+
+    def get_name(self)->str:
+        return self.cfg.name
+
     def satisfy(self, strchunk: str)->bool:
         trimmed = strchunk.strip()
         finished = trimmed.find(self.cfg.separator)
         candidate = trimmed if finished < 0 else trimmed[:finished]
         return self.cfg.match_str(candidate)
-
     
     def parse_as_string(self, strchunk: str)->(str, str):
         satisfied = self.satisfy(strchunk)

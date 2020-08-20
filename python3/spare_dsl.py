@@ -9,26 +9,41 @@ from dsl_text import PersistenceSequence, PersistenceParserError, ParsingContext
 
 # Conversion
 
-def id_to_nmo_str(value: str):
-    return str(value)
+class SpareFormatter:
+    def __init__(self):
+        self.tags = SequencePersistence(SequenceConfig().set_name("tags").set_start("[").set_finish("]").set_separator(" "))
+        self.emails = SequencePersistence(SequenceConfig().set_name("emails").set_start("[").set_finish("]").set_separator(" "))
+        self.items = SequencePersistence(SequenceConfig().set_name("items").set_start("[").set_finish("]").set_separator(" "))
 
-def int_to_nmo_str(value: int):
-    return str(value)
+    def from_int(self, value: int)->str:
+        return str(value)
 
-def float_to_nmo_str(value: float):
-    return str(value)
+    def from_float(self, value: float)->str:
+        return str(value)
 
-def fraction_to_nmo_str(value: Fraction):
-    return str(value)
+    def from_url(self, value: str)->str:
+        return value.strip()
 
-def url_to_nmo_str(value: str):
-    return str(value)
+    def from_id(self, value: str)->str:
+        return value.strip()
 
-def email_to_nmo_str(value: str):
-    return str(value)
+    def from_tag(self, value: str)->str:
+        return value.strip()
 
-def emails_to_nmo_str(emails: List[str]):
-    return " ".join([email_to_nmo_str(email) for email in emails])
+    def from_email(self, value: str)->str:
+        return value.strip()
+
+    def from_fraction(self, value: Fraction)->str:
+        return str(value)
+
+    def from_tags(self, values: List[str])->str:
+        return self.tags.to_csv_string([self.from_tag(value) for value in values])
+
+    def from_emails(self, values: List[str])->str:
+        return self.emails.to_csv_string([self.from_email(value) for value in values])
+
+
+sf =  SpareFormatter()
 
 class ColorName(Enum):
     RED = auto()
@@ -89,13 +104,9 @@ class SpareItem:
 
     def to_nmo_string(self):
        return "v_float {} v_fraction {}".format(
-            float_to_nmo_str(self.v_float),
-            fraction_to_nmo_str(self.v_fraction)
+            sf.from_float(self.v_float),
+            sf.from_fraction(self.v_fraction)
             )
-
-
-def items_to_nmo_str(items: List[SpareItem]):
-    return " ".join([items.to_nmo_string() for item in items])
 
 
 class SpareRow:
@@ -182,14 +193,14 @@ class SpareRow:
 
     def to_nmo_string(self):
        return "row {} {} {} tags {} emails {} {} items {} -> {}".format(
-            id_to_nmo_str(self.id),
-            int_to_nmo_str(self.v_int),
-            url_to_nmo_str(self.url),
-            str(self.tags),
-            emails_to_nmo_str(self.emails),
+            sf.from_id(self.id),
+            sf.from_fraction(self.v_int),
+            sf.from_url(self.url),
+            sf.from_tags(self.tags),
+            sf.from_emails(self.emails),
             ColorName.to_nmo_string(self.color_name),
             str(self.items),
-            str(self.description)
+            self.description
             )
 
 
@@ -215,14 +226,14 @@ class SpareItemParser:
 class SpareRowParser:
     def __init__(self):
         self.marker_row = RegExpPersistence(RegExpConfig().set_name("marker_row").set_match("row"))
-        self.id = RegExpPersistence(RegExpConfig().set_name("id").set_match(r"[a-z0-9_-]"))
+        self.id = RegExpPersistence(RegExpConfig().set_name("id").set_match(r"[a-z0-9_-]+"))
         self.v_int= IntegerPersistence(IntegerConfig().set_name("v_int"))
         self.url= RegExpPersistence(RegExpConfig().set_name("url").set_match(r"https?://[A-Za-z0-9/_.-]+"))
         self.tag = RegExpPersistence(RegExpConfig().set_name("tag"))
         self.marker_tags = RegExpPersistence(RegExpConfig().set_name("marker_tags").set_match("tags"))
         self.tags = SequencePersistence(SequenceConfig().set_name("tags"))
         self.email = RegExpPersistence(RegExpConfig().set_name("email"))
-        self.emails: SequencePersistence(SequenceConfig().set_name("emails"))
+        self.emails = SequencePersistence(SequenceConfig().set_name("emails"))
         self.color_name= EnumPersistence(EnumConfig().set_name("color_name"))
         self.item = SpareItemParser()
         self.items = SequencePersistence(SequenceConfig().set_name("items"))
