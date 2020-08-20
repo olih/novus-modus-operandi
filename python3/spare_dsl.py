@@ -42,6 +42,9 @@ class SpareFormatter:
     def from_emails(self, values: List[str])->str:
         return self.emails.to_csv_string([self.from_email(value) for value in values])
 
+    def from_items(self, values: List[str])->str:
+        return self.items.to_csv_string(values)
+
 
 sf =  SpareFormatter()
 
@@ -199,7 +202,7 @@ class SpareRow:
             sf.from_tags(self.tags),
             sf.from_emails(self.emails),
             ColorName.to_nmo_string(self.color_name),
-            str(self.items),
+            sf.from_items([item.to_nmo_string() for item in self.items]),
             self.description
             )
 
@@ -233,6 +236,7 @@ class SpareRowParser:
         self.marker_tags = RegExpPersistence(RegExpConfig().set_name("marker_tags").set_match("tags"))
         self.tags = SequencePersistence(SequenceConfig().set_name("tags"))
         self.email = RegExpPersistence(RegExpConfig().set_name("email"))
+        self.marker_emails = RegExpPersistence(RegExpConfig().set_name("marker_emails").set_match("emails"))
         self.emails = SequencePersistence(SequenceConfig().set_name("emails"))
         self.color_name= EnumPersistence(EnumConfig().set_name("color_name"))
         self.item = SpareItemParser()
@@ -248,7 +252,8 @@ class SpareRowParser:
         (tag_strlist, after_tags) = self.tags.parse_ctx_list(ctx, after_marker_tags)
         self.tag.list_satisfy_ctx(ctx, tag_strlist)
         tags = set(self.tag.list_parse_string_ctx(ctx, tag_strlist))
-        (email_strlist, after_emails) = self.emails.parse_ctx_list(ctx, after_tags)
+        after_emails_marker = self.marker_emails.consume_marker(ctx, after_tags)
+        (email_strlist, after_emails) = self.emails.parse_ctx_list(ctx, after_emails_marker)
         self.email.list_satisfy_ctx(ctx, email_strlist)
         emails = self.email.list_parse_string_ctx(ctx, email_strlist)
         (color_name, after_color_name) = self.url.parse_ctx_string(ctx, after_emails)
