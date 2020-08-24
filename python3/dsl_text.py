@@ -69,7 +69,7 @@ class BasePersistence:
                 raise PersistenceParserError(ctx, self.get_name(), chunk)
 
     def list_parse_string_ctx(self, ctx: ParsingContext, chunks: List[str])->List[str]:
-        return [self.parse_ctx_string(ctx, chunk) for chunk in chunks]
+        return [self.parse_ctx_string(ctx, chunk)[0] for chunk in chunks]
             
 
 class PersistenceContainer:    

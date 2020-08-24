@@ -13,7 +13,7 @@ class SpareFormatter:
     def __init__(self):
         self.tags = SequencePersistence(SequenceConfig().set_name("tags").set_start("[").set_finish("]").set_separator(" "))
         self.emails = SequencePersistence(SequenceConfig().set_name("emails").set_start("[").set_finish("]").set_separator(" "))
-        self.items = SequencePersistence(SequenceConfig().set_name("items").set_start("[").set_finish("]").set_separator(" "))
+        self.items = SequencePersistence(SequenceConfig().set_name("items").set_start("[").set_finish("]").set_separator(","))
 
     def from_int(self, value: int)->str:
         return str(value)
@@ -236,16 +236,16 @@ class SpareRowParser:
         self.url= RegExpPersistence(RegExpConfig().set_name("url").set_match(r"https?://[A-Za-z0-9/_.-]+"))
         self.tag = RegExpPersistence(RegExpConfig().set_name("tag"))
         self.marker_tags = RegExpPersistence(RegExpConfig().set_name("marker_tags").set_match("tags"))
-        self.tags = SequencePersistence(SequenceConfig().set_name("tags"))
+        self.tags = SequencePersistence(SequenceConfig().set_name("tags").set_start("[").set_finish("]").set_separator(" "))
         self.email = RegExpPersistence(RegExpConfig().set_name("email"))
         self.marker_emails = RegExpPersistence(RegExpConfig().set_name("marker_emails").set_match("emails"))
-        self.emails = SequencePersistence(SequenceConfig().set_name("emails"))
+        self.emails = SequencePersistence(SequenceConfig().set_name("emails").set_start("[").set_finish("]").set_separator(" "))
         self.color_name= EnumPersistence(EnumConfig().set_name("color_name").set_values(["green", "orange", "red"]))
         self.item = SpareItemParser()
         self.marker_items = RegExpPersistence(RegExpConfig().set_name("marker_items").set_match("items"))
         self.items = SequencePersistence(SequenceConfig().set_name("items"))
         self.marker_description = RegExpPersistence(RegExpConfig().set_name("marker_description").set_match("->"))
-        self.description = RegExpPersistence(RegExpConfig().set_name("description").set_match(r".*"))
+        self.description = RegExpPersistence(RegExpConfig().set_name("description").set_match(r"[^$]+").set_separator("-- "))
 
     def parse(self, ctx: ParsingContext, chunk: str)->SpareRow:
         after_marker_row = self.marker_row.consume_marker(ctx, chunk)

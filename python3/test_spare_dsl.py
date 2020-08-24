@@ -17,7 +17,7 @@ class TestParsingSpareRow(unittest.TestCase):
                 .set_emails(["a@email.com", "b@fb.com"])
                 .set_url("http://cc.org")
                 .set_color_name_as_str("green")
-                .set_items([SpareItem().set_v_float(1.3).set_v_fraction_as_str("1/4")])
+                .set_items([SpareItem().set_v_float(1.3).set_v_fraction_as_str("1/4"), SpareItem().set_v_float(1.7).set_v_fraction_as_str("1/5")])
                 .set_description("some description")
             ]
         for ex in examples:
