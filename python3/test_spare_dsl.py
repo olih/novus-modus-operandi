@@ -10,11 +10,21 @@ class TestParsingSpareRow(unittest.TestCase):
 
     def test_conversion_should_succeed(self):
         examples = [
-            SpareRow().set_id("one").set_v_int(15).set_tags(set(["monday", "tuesday"])).set_emails(["a@email.com", "b@fb.com"]).set_url("http://cc.org").set_color_name_as_str("green").set_items([SpareItem().set_v_float(1.3).set_v_fraction_as_str("1/4")])
+            SpareRow()
+                .set_id("one")
+                .set_v_int(15)
+                .set_tags(set(["monday", "tuesday"]))
+                .set_emails(["a@email.com", "b@fb.com"])
+                .set_url("http://cc.org")
+                .set_color_name_as_str("green")
+                .set_items([SpareItem().set_v_float(1.3).set_v_fraction_as_str("1/4")])
+                .set_description("some description")
             ]
         for ex in examples:
                 line = ex.to_nmo_string()
                 print("Line", line)
                 spareRow = spareRowParser.parse(ctx, line)
                 with self.subTest(ex=ex):
+                    print(">>>", ex)
+                    print("<<<",spareRow)
                     self.assertEqual(ex, spareRow)

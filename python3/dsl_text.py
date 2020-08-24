@@ -273,7 +273,7 @@ class IntegerPersistence(BasePersistence):
 class FloatConfig:
     def __init__(self):
         self.name = "float-no-name"
-        self.has_sign = BriefAnswer
+        self.has_sign = BriefAnswer.Maybe
         self.separator = " "
         self.pattern = re.compile(r"^(\+|-)?[0-9.]+")
     
@@ -335,7 +335,7 @@ class FloatPersistence(BasePersistence):
 class FractionConfig:
     def __init__(self):
         self.name = "fraction-no-name"
-        self.has_sign = BriefAnswer
+        self.has_sign = BriefAnswer.Maybe
         self.separator = " "
         self.pattern = re.compile(r"^(\+|-)?(?:[1-9][0-9]*|0)(?:\/[1-9][0-9]*)?$")
     

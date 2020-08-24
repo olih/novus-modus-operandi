@@ -180,9 +180,9 @@ class SpareRow:
         "url", self.url,
         "tags", str(self.tags),
         "emails", str(self.emails),
-        "color_name", self.color_name.to_string(),
+        "color_name", str(self.color_name),
         "items", str(self.items),
-        "description", str(self.items)
+        "description", str(self.description)
         ])
 
     def __str__(self):
@@ -211,14 +211,16 @@ class SpareRow:
 
 class SpareItemParser:
     def __init__(self):
-        self.marker1 = RegExpPersistence(RegExpConfig().set_name("marker1"))
+        self.marker_v_float = RegExpPersistence(RegExpConfig().set_name("marker_v_float").set_match("v_float"))
         self.v_float= FloatPersistence(FloatConfig().set_name("v_float"))
-        self.v_fraction= IntegerPersistence(FractionConfig().set_name("v_fraction"))
+        self.marker_v_fraction = RegExpPersistence(RegExpConfig().set_name("marker_v_fraction").set_match("v_fraction"))
+        self.v_fraction= FractionPersistence(FractionConfig().set_name("v_fraction"))
 
     def parse(self, ctx: ParsingContext, chunk: str)->SpareItem:
-        after_marker1 = self.marker1.consume_marker(ctx, chunk)
-        (value_v_float, after_v_float) = self.v_float.parse_ctx_string(ctx, after_marker1)
-        (value_v_fraction, _) = self.v_fraction.parse_ctx_string(ctx, after_v_float)
+        after_marker_v_float = self.marker_v_float.consume_marker(ctx, chunk)
+        (value_v_float, after_v_float) = self.v_float.parse_ctx_string(ctx, after_marker_v_float)
+        after_marker_v_fraction = self.marker_v_fraction.consume_marker(ctx, after_v_float)
+        (value_v_fraction, _) = self.v_fraction.parse_ctx_string(ctx, after_marker_v_fraction)
 
         spareItem = SpareItem()
         spareItem.set_v_float_as_str(value_v_float)
@@ -238,10 +240,12 @@ class SpareRowParser:
         self.email = RegExpPersistence(RegExpConfig().set_name("email"))
         self.marker_emails = RegExpPersistence(RegExpConfig().set_name("marker_emails").set_match("emails"))
         self.emails = SequencePersistence(SequenceConfig().set_name("emails"))
-        self.color_name= EnumPersistence(EnumConfig().set_name("color_name"))
+        self.color_name= EnumPersistence(EnumConfig().set_name("color_name").set_values(["green", "orange", "red"]))
         self.item = SpareItemParser()
+        self.marker_items = RegExpPersistence(RegExpConfig().set_name("marker_items").set_match("items"))
         self.items = SequencePersistence(SequenceConfig().set_name("items"))
-        self.description = RegExpPersistence(RegExpConfig().set_name("description"))
+        self.marker_description = RegExpPersistence(RegExpConfig().set_name("marker_description").set_match("->"))
+        self.description = RegExpPersistence(RegExpConfig().set_name("description").set_match(r".*"))
 
     def parse(self, ctx: ParsingContext, chunk: str)->SpareRow:
         after_marker_row = self.marker_row.consume_marker(ctx, chunk)
@@ -256,9 +260,12 @@ class SpareRowParser:
         (email_strlist, after_emails) = self.emails.parse_ctx_list(ctx, after_emails_marker)
         self.email.list_satisfy_ctx(ctx, email_strlist)
         emails = self.email.list_parse_string_ctx(ctx, email_strlist)
-        (color_name, after_color_name) = self.url.parse_ctx_string(ctx, after_emails)
-        (items_strlist, _) = self.items.parse_ctx_list(ctx, after_color_name)
+        (color_name, after_color_name) = self.color_name.parse_ctx_string(ctx, after_emails)
+        after_marker_items = self.marker_items.consume_marker(ctx, after_color_name)
+        (items_strlist, after_items) = self.items.parse_ctx_list(ctx, after_marker_items)
         items = [self.item.parse(ctx, item) for item in items_strlist]
+        after_marker_description = self.marker_description.consume_marker(ctx, after_items)
+        (description, _) = self.description.parse_ctx_string(ctx, after_marker_description)
         spareRow = SpareRow()
         spareRow.set_id(id)
         spareRow.set_v_int_as_str(v_int)
@@ -267,4 +274,5 @@ class SpareRowParser:
         spareRow.set_emails(emails)
         spareRow.set_color_name_as_str(color_name)
         spareRow.set_items(items)
+        spareRow.set_description(description)
         return spareRow
