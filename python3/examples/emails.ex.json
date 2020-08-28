@@ -1,0 +1,24 @@
+{
+    "name": "email",
+    "valid": [
+        "first.last@domain.com",
+        "first_last@domain.com",
+        "first+last@domain.com",
+        "first-last@domain.com",
+        "email@sub.domain.co.uk",
+        "email@dash-domain.museum"
+    ],
+    "invalid": [
+        "some-random-text",
+        "@domain.com",
+        "email.domain.com",
+        "First Last <email@domain.com>",
+        "email@domain@domain.com",
+        ".email@domain.com",
+        "email.@domain.com",
+        "email..email@domain.com",
+        "滝@waterfall.jp",
+        "email@domain",
+        "email@domain..com"
+    ]
+}
