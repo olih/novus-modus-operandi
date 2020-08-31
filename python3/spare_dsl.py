@@ -5,8 +5,6 @@ from dsl_text import SequenceConfig, SequencePersistence, RegExpConfig, RegExpPe
 from dsl_text import FloatConfig, FloatPersistence, FractionConfig, FractionPersistence, EnumConfig, EnumPersistence
 from dsl_text import PersistenceSequence, PersistenceParserError, ParsingContext, BasePersistence
 
-
-
 # Conversion
 
 class SpareFormatter:
@@ -111,6 +109,24 @@ class SpareItem:
             sf.from_fraction(self.v_fraction)
             )
 
+
+class SpareSection:
+    def __init__(self):
+        self.section_type:str = "no-section"
+
+    def set_section_type(self, value: str):
+            self.section_type = value
+            return self
+
+    def to_string(self):
+        return " ".join([
+            "section_type", str(self.section_type)
+        ])
+
+    def to_nmo_string(self):
+       return "section {} ".format(
+            self.set_section_type(self.section_type)
+            )
 
 class SpareRow:
     def __init__(self):
@@ -276,3 +292,13 @@ class SpareRowParser:
         spareRow.set_items(items)
         spareRow.set_description(description)
         return spareRow
+
+class SpareSectionParser:
+    def __init__(self):
+        self.marker_row = RegExpPersistence(RegExpConfig().set_name("marker_section_row").set_match("section spare"))
+
+    def parse(self, ctx: ParsingContext, chunk: str)->SpareSection:
+        self.marker_row.consume_marker(ctx, chunk)
+        spareSection = SpareSection()
+        spareSection.set_section_type("spare")
+        return spareSection

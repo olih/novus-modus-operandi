@@ -1,0 +1,17 @@
+{
+    "name": "url",
+    "valid": [
+        "http://domain.com/alpha_bravo",
+        "https://domain.com/a123.b456/",
+        "http://domain.com/c789-blah_(wikipedia)",
+        "http://www.domain.com/wpstyle/?p=364",
+        "https://www.domain.com/foo/?bar=baz&inga=42&quux",
+        "http://domain.com/blah_(wikipedia)#cite-1"
+    ],
+    "invalid": [
+        "http://",
+        "http://domain.bar?q=Spaces should be encoded",
+        "abc://1234"
+
+    ]
+}
