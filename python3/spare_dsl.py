@@ -302,3 +302,46 @@ class SpareSectionParser:
         spareSection = SpareSection()
         spareSection.set_section_type("spare")
         return spareSection
+
+
+class RowDetectorDef:
+    def __init__(self):
+        self.single = False
+        self.prefixes = []
+        self.separator = " "
+   
+    def set_single(self):
+        self.single = True
+        return self
+    
+    def set_multiple(self):
+        self.single = False
+        return self
+
+    def set_prefixes(self, values: List[str]):
+        self.prefixes = values
+        return self
+    
+    def set_separator(self, separator: str):
+        self.separator = separator
+        return self
+
+    def match(self, line: str):
+        parts = self.separator.split(line)
+        return True #TODO
+
+    
+class RowDetector:
+    def __init__(self):
+        self.section_spare = RowDetectorDef().set_single().set_separator(" ").set_prefixes(["section", "spare"])
+        self.section_spare_parser = SpareSectionParser()
+        self.spare_row = RowDetectorDef().set_multiple().set_separator(" ").set_prefixes(["row"])
+        self.spare_row_parser = SpareRowParser()
+
+    def get_parser(self, line: str):
+        if self.section_spare.match(line):
+            return self.section_spare_parser
+        elif self.spare_row.match(line):
+            return self.spare_row_parser
+        return None
+
