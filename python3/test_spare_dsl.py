@@ -8,6 +8,7 @@ import os
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 emailExamples = Examples().load("{}/examples/emails.ex.json".format(dir_path))
+urlExamples = Examples().load("{}/examples/urls.ex.json".format(dir_path))
 
 spareRowParser = SpareRowParser()
 ctx = ParsingContext().set_id("ctx7").set_line_number(27)
@@ -20,7 +21,7 @@ class TestParsingSpareRow(unittest.TestCase):
                 .set_v_int(15)
                 .set_tags(set(["monday", "tuesday"]))
                 .set_emails(emailExamples.sample_valid(3))
-                .set_url("http://cc.org")
+                .set_url(urlExamples.pick_valid())
                 .set_color_name_as_str("green")
                 .set_items([SpareItem().set_v_float(1.3).set_v_fraction_as_str("1/4"), SpareItem().set_v_float(1.7).set_v_fraction_as_str("1/5")])
                 .set_description("some description")
