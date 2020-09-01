@@ -443,6 +443,12 @@ class EnumPersistence(BasePersistence):
     def to_csv_string(self, values: List[str])->str:
         return "".join(values)
 
+
+def match_field(expected: str, actual: str)->bool:
+    if expected == "*":
+        return True
+    return expected == actual
+
 class RowDetectorOption:
     def __init__(self):
         self.name = "no-name"
@@ -462,8 +468,12 @@ class RowDetectorOption:
         return self
 
     def match(self, line: str)->bool:
-        parts = self.separator.split(line)
-        return True #TODO
+        parts = line.split(self.separator)
+        try:
+            results = set([match_field(self.prefixes[i],parts[i]) for i in range(len(self.prefixes))])
+            return not (False in results)
+        except IndexError:
+            return False
 
 class RowDetector:
     def __init__(self):

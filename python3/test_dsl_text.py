@@ -345,7 +345,6 @@ class TestEnumPersistence(unittest.TestCase):
                 with self.subTest(cfg=cfg, ex=ex):
                     self.assertFalse(rePersist.satisfy(chunkstr))
 
-
 class TestRowDetectorOption(unittest.TestCase):
 
     def test_match_only_valid(self):
@@ -354,11 +353,11 @@ class TestRowDetectorOption(unittest.TestCase):
              "valid": ["alpha", "alpha beta", "alpha beta charlie"],
              "invalid": ["", "beta alpha", "alpha123"]
              },
-            {"option": RowDetectorOption().set_name("alpha bravo").set_separator(" ").set_prefixes(["alpha bravo"]),
+            {"option": RowDetectorOption().set_name("alpha bravo").set_separator(" ").set_prefixes(["alpha", "bravo"]),
              "valid": ["alpha bravo", "alpha bravo beta", "alpha bravo beta charlie"],
              "invalid": ["", "beta alpha bravo", "alpha bravo123"]
              },
-            {"option": RowDetectorOption().set_name("alpha id bravo").set_separator(" ").set_prefixes(["alpha * bravo"]),
+            {"option": RowDetectorOption().set_name("alpha id bravo").set_separator(" ").set_prefixes(["alpha","*", "bravo"]),
              "valid": ["alpha 123 bravo", "alpha other bravo beta", "alpha id123 bravo beta charlie"],
              "invalid": ["", "beta alpha bravo", "alpha bravo123"]
              },
