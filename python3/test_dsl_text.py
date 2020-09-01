@@ -3,6 +3,7 @@ from random import randint, choice
 from typing import List, Tuple, Dict, Set, Optional
 from dsl_text import SequenceConfig, SequencePersistence, RegExpConfig, RegExpPersistence, IntegerConfig, IntegerPersistence, BriefAnswer
 from dsl_text import FloatConfig, FloatPersistence, FractionConfig, FractionPersistence, EnumConfig, EnumPersistence, RowDetectorOption
+from dsl_text import RowDetector
 
 squareSequenceCfg = SequenceConfig().set_start(
     "[").set_finish("]").set_separator(",")
@@ -370,3 +371,17 @@ class TestRowDetectorOption(unittest.TestCase):
             for invalid in use_case["invalid"]:
                 with self.subTest(name=option.name, ex=invalid):
                     self.assertFalse(option.match(invalid))
+
+class TestRowDetector(unittest.TestCase):
+
+    def test_match_only_valid(self):
+        detector = RowDetector()
+        detector.add_option(RowDetectorOption().set_name("alpha id bravo").set_separator(" ").set_prefixes(["alpha","*", "bravo"]))
+        detector.add_option(RowDetectorOption().set_name("alpha bravo").set_separator(" ").set_prefixes(["alpha", "bravo"]),)
+        detector.add_option(RowDetectorOption().set_name("alpha").set_separator(" ").set_prefixes(["alpha"]))
+        self.assertEqual(detector.match("alpha bravo and more"), "alpha bravo")
+        self.assertEqual(detector.match("alpha something else"), "alpha")
+        self.assertEqual(detector.match("alpha id123 bravo and more"), "alpha id bravo")
+        self.assertIsNone(detector.match(""))
+        self.assertIsNone(detector.match("bravo"))
+        self.assertIsNone(detector.match("alpha123"))

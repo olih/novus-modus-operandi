@@ -483,5 +483,12 @@ class RowDetector:
         self.options = options
         return self
 
+    def add_option(self, option: RowDetectorOption):
+        self.options.append(option)
+        return self
+
     def match(self, line: str)->Optional[str]:
+        for option in self.options:
+            if option.match(line):
+                return option.name
         return None
