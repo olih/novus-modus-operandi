@@ -442,3 +442,36 @@ class EnumPersistence(BasePersistence):
      
     def to_csv_string(self, values: List[str])->str:
         return "".join(values)
+
+class RowDetectorOption:
+    def __init__(self):
+        self.name = "no-name"
+        self.prefixes = []
+        self.separator = " "
+
+    def set_name(self, name: str):
+        self.name = name
+        return self
+   
+    def set_prefixes(self, values: List[str]):
+        self.prefixes = values
+        return self
+    
+    def set_separator(self, separator: str):
+        self.separator = separator
+        return self
+
+    def match(self, line: str)->bool:
+        parts = self.separator.split(line)
+        return True #TODO
+
+class RowDetector:
+    def __init__(self):
+        self.options = []
+
+    def set_options(self, options: List[RowDetectorOption]):
+        self.options = options
+        return self
+
+    def match(self, line: str)->Optional[str]:
+        return None
