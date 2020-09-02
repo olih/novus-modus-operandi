@@ -481,11 +481,16 @@ class RowDetector:
 
     def set_options(self, options: List[RowDetectorOption]):
         self.options = options
+        self._sort_options()
         return self
 
     def add_option(self, option: RowDetectorOption):
         self.options.append(option)
+        self._sort_options()
         return self
+
+    def _sort_options(self):
+        self.options = sorted(self.options, key = lambda option: len(option.prefixes), reverse=True)
 
     def match(self, line: str)->Optional[str]:
         for option in self.options:
