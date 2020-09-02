@@ -528,5 +528,5 @@ class ScriptParser:
         self.line_parser_configs = {}
 
     def add_line_parser_cfg(self, line_parser_cfg: LineParserConfig):
-        self.line_parser_configs[line_parser_cfg.name]
+        self.line_parser_configs[line_parser_cfg.name] = line_parser_cfg
         return self

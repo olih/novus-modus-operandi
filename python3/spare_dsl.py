@@ -304,10 +304,44 @@ class SpareSectionParser(LineParser):
         spareSection.set_section_type("spare")
         return spareSection
 
+class SpareDocSection1:
+    def __init__(self):
+        self.header1 = SpareSection()
+        self.self.rows = []
+
+    def set_header1(self, header: SpareSection):
+        self.header1 = header
+        return self
+
+    def add_row(self, row: SpareRow):
+        self.rows.append(row)
+        return self
+
+class SpareDocSection2:
+    def __init__(self):
+        self.header1 = SpareSection()
+        self.self.rows = []
+
+    def set_header1(self, header: SpareSection):
+        self.header1 = header
+        return self
+
+    def add_row(self, row: SpareRow):
+        self.rows.append(row)
+        return self
+
+
+class SpareDoc:
+    def __init__(self):
+        self.section1 = SpareDocSection1()
+        self.section2 = SpareDocSection2()
+
 
 class SpareParser:
     def __init__(self):
+        self.separator = "\n--------\n"
         self.init_row_detector()
+        self.init_script_parser()
 
     def init_row_detector(self):
         row_detector = RowDetector()
@@ -318,3 +352,17 @@ class SpareParser:
         script_parser = ScriptParser()
         script_parser.add_line_parser_cfg(LineParserConfig().set_name("section").set_single().set_parser(SpareSectionParser()))
         self.script_parser = script_parser
+
+    def parse(self, content: str):
+        sections = content.split(self.separator)
+        spareDoc = SpareDoc()
+        for section in sections:
+            lines = section.splitlines()
+            for line in lines:
+                ctx = ParsingContext().set_id("spare-parser").set_line_number(0)
+                name = self.row_detector.match(line)
+                if name is not None:
+                    typedobj = self.script_parser[name].parser.parse(ctx,line)
+                    spareDoc.section1.header1 = typedobj #hmmm
+        
+    
