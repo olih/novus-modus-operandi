@@ -3,7 +3,8 @@ from fractions import Fraction
 from enum import Enum, auto
 from dsl_text import SequenceConfig, SequencePersistence, RegExpConfig, RegExpPersistence, IntegerConfig, IntegerPersistence, BriefAnswer
 from dsl_text import FloatConfig, FloatPersistence, FractionConfig, FractionPersistence, EnumConfig, EnumPersistence
-from dsl_text import PersistenceSequence, PersistenceParserError, ParsingContext, BasePersistence
+from dsl_text import PersistenceSequence, PersistenceParserError, ParsingContext, BasePersistence,
+from dsl_text import RowDetectorOption, RowDetector, LineParser, LineParserConfig, ScriptParser
 
 # Conversion
 
@@ -225,7 +226,7 @@ class SpareRow:
 
 # Persistence
 
-class SpareItemParser:
+class SpareItemParser(LineParser):
     def __init__(self):
         self.marker_v_float = RegExpPersistence(RegExpConfig().set_name("marker_v_float").set_match("v_float"))
         self.v_float= FloatPersistence(FloatConfig().set_name("v_float"))
@@ -244,7 +245,7 @@ class SpareItemParser:
         return spareItem
 
 
-class SpareRowParser:
+class SpareRowParser(LineParser):
     def __init__(self):
         self.marker_row = RegExpPersistence(RegExpConfig().set_name("marker_row").set_match("row"))
         self.id = RegExpPersistence(RegExpConfig().set_name("id").set_match(r"[a-z0-9_-]+"))
@@ -293,7 +294,7 @@ class SpareRowParser:
         spareRow.set_description(description)
         return spareRow
 
-class SpareSectionParser:
+class SpareSectionParser(LineParser):
     def __init__(self):
         self.marker_row = RegExpPersistence(RegExpConfig().set_name("marker_section_row").set_match("section spare"))
 
@@ -304,44 +305,16 @@ class SpareSectionParser:
         return spareSection
 
 
-class RowDetectorDef:
+class SpareParser:
     def __init__(self):
-        self.single = False
-        self.prefixes = []
-        self.separator = " "
-   
-    def set_single(self):
-        self.single = True
-        return self
-    
-    def set_multiple(self):
-        self.single = False
-        return self
+        self.init_row_detector()
 
-    def set_prefixes(self, values: List[str]):
-        self.prefixes = values
-        return self
-    
-    def set_separator(self, separator: str):
-        self.separator = separator
-        return self
+    def init_row_detector(self):
+        row_detector = RowDetector()
+        row_detector.add_option(RowDetectorOption().set_name("section").set_separator(" ").set_prefixes(["section"]))
+        self.row_detector = row_detector
 
-    def match(self, line: str):
-        parts = self.separator.split(line)
-        return True #TODO
-
-    
-class RowDetector:
-    def __init__(self):
-        self.section_spare = RowDetectorDef().set_single().set_separator(" ").set_prefixes(["section", "spare"])
-        self.section_spare_parser = SpareSectionParser()
-        self.spare_row = RowDetectorDef().set_multiple().set_separator(" ").set_prefixes(["row"])
-        self.spare_row_parser = SpareRowParser()
-
-    def get_parser(self, line: str):
-        if self.section_spare.match(line):
-            return self.section_spare_parser
-        elif self.spare_row.match(line):
-            return self.spare_row_parser
-        return None
-
+    def init_script_parser(self):
+        script_parser = ScriptParser()
+        script_parser.add_line_parser_cfg(LineParserConfig().set_name("section").set_single().set_parser(SpareSectionParser()))
+        self.script_parser = script_parser

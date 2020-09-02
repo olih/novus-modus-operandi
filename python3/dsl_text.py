@@ -497,3 +497,36 @@ class RowDetector:
             if option.match(line):
                 return option.name
         return None
+
+class LineParser:
+    def parse(self, ctx: ParsingContext, chunk: str):
+        pass
+
+class LineParserConfig:
+    def __init__(self):
+        self.name = "enum-no-name"
+        self.single = False
+
+    def set_name(self, name: str):
+        self.name = name
+        return self
+
+    def set_parser(self, parser: LineParser):
+        self.parser = parser
+        return self
+
+    def set_single(self):
+        self.single = True
+        return self
+    
+    def set_multiple(self):
+        self.single = False
+        return self
+
+class ScriptParser:
+    def __init__(self):
+        self.line_parser_configs = {}
+
+    def add_line_parser_cfg(self, line_parser_cfg: LineParserConfig):
+        self.line_parser_configs[line_parser_cfg.name]
+        return self
