@@ -506,6 +506,8 @@ class LineParserConfig:
     def __init__(self):
         self.name = "enum-no-name"
         self.single = False
+        self.scope = "no-scope"
+        self.parser: LineParser = None
 
     def set_name(self, name: str):
         self.name = name
@@ -523,9 +525,13 @@ class LineParserConfig:
         self.single = False
         return self
 
+    def set_scope(self, scope: str):
+        self.scope = scope
+        return self
+
 class ScriptParser:
     def __init__(self):
-        self.line_parser_configs = {}
+        self.line_parser_configs: Dict[str, LineParserConfig] = {}
 
     def add_line_parser_cfg(self, line_parser_cfg: LineParserConfig):
         self.line_parser_configs[line_parser_cfg.name] = line_parser_cfg

@@ -3,7 +3,7 @@ from fractions import Fraction
 from enum import Enum, auto
 from dsl_text import SequenceConfig, SequencePersistence, RegExpConfig, RegExpPersistence, IntegerConfig, IntegerPersistence, BriefAnswer
 from dsl_text import FloatConfig, FloatPersistence, FractionConfig, FractionPersistence, EnumConfig, EnumPersistence
-from dsl_text import PersistenceSequence, PersistenceParserError, ParsingContext, BasePersistence,
+from dsl_text import PersistenceSequence, PersistenceParserError, ParsingContext, BasePersistence
 from dsl_text import RowDetectorOption, RowDetector, LineParser, LineParserConfig, ScriptParser
 
 # Conversion
@@ -110,14 +110,40 @@ class SpareItem:
             sf.from_fraction(self.v_fraction)
             )
 
+class SpareSectionType(Enum):
+    ALPHA = auto()
+    BETA = auto()
+    NOT_SUPPORTED = auto()
+    
+    @classmethod
+    def from_nmo_string(cls, value: str):
+        if value == "alpha":
+            return SpareSectionType.ALPHA
+        elif value == "beta":
+            return SpareSectionType.BETA
+        else:
+            return SpareSectionType.NOT_SUPPORTED
+    
+    @classmethod
+    def to_nmo_string(cls, value):
+        if value == SpareSectionType.ALPHA:
+            return "alpha"
+        elif value == SpareSectionType.BETA:
+            return "beta"
+        else:
+            return "E"
+
 
 class SpareSection:
     def __init__(self):
-        self.section_type:str = "no-section"
+        self.section_type: SpareSectionType = SpareSectionType.NOT_SUPPORTED
 
-    def set_section_type(self, value: str):
+    def set_section_type(self, value: SpareSectionType):
             self.section_type = value
             return self
+
+    def set_section_type_as_str(self, value: str):
+        return self.set_section_type(SpareSectionType.from_nmo_string(value))
 
     def to_string(self):
         return " ".join([
@@ -125,8 +151,8 @@ class SpareSection:
         ])
 
     def to_nmo_string(self):
-       return "section {} ".format(
-            self.set_section_type(self.section_type)
+       return "section {}".format(
+            SpareSectionType.to_nmo_string(self.section_type),
             )
 
 class SpareRow:
@@ -296,18 +322,20 @@ class SpareRowParser(LineParser):
 
 class SpareSectionParser(LineParser):
     def __init__(self):
-        self.marker_row = RegExpPersistence(RegExpConfig().set_name("marker_section_row").set_match("section spare"))
+        self.marker_section = RegExpPersistence(RegExpConfig().set_name("marker_section_row").set_match("section"))
+        self.section_type= EnumPersistence(EnumConfig().set_name("section_type").set_values(["alpha", "beta",]))
 
     def parse(self, ctx: ParsingContext, chunk: str)->SpareSection:
-        self.marker_row.consume_marker(ctx, chunk)
+        after_marker = self.marker_section.consume_marker(ctx, chunk)
+        (section_type, _) = self.section_type.parse_ctx_string(ctx, after_marker)
         spareSection = SpareSection()
-        spareSection.set_section_type("spare")
+        spareSection.set_section_type_as_str(section_type)
         return spareSection
 
-class SpareDocSection1:
+class SpareDocSectionAlpha:
     def __init__(self):
         self.header1 = SpareSection()
-        self.self.rows = []
+        self.rows = []
 
     def set_header1(self, header: SpareSection):
         self.header1 = header
@@ -317,10 +345,10 @@ class SpareDocSection1:
         self.rows.append(row)
         return self
 
-class SpareDocSection2:
+class SpareDocSectionBeta:
     def __init__(self):
         self.header1 = SpareSection()
-        self.self.rows = []
+        self.rows = []
 
     def set_header1(self, header: SpareSection):
         self.header1 = header
@@ -333,36 +361,54 @@ class SpareDocSection2:
 
 class SpareDoc:
     def __init__(self):
-        self.section1 = SpareDocSection1()
-        self.section2 = SpareDocSection2()
-
+        self.section_alpha = SpareDocSectionAlpha()
+        self.section_beta = SpareDocSectionBeta()
 
 class SpareParser:
     def __init__(self):
-        self.separator = "\n--------\n"
+        self.separator = "--------"
+        self.comment_prefix = "#"
         self.init_row_detector()
         self.init_script_parser()
 
     def init_row_detector(self):
         row_detector = RowDetector()
-        row_detector.add_option(RowDetectorOption().set_name("section").set_separator(" ").set_prefixes(["section"]))
+        row_detector.add_option(RowDetectorOption().set_name("section_alpha").set_separator(" ").set_prefixes(["section", "alpha"]))
+        row_detector.add_option(RowDetectorOption().set_name("section_beta").set_separator(" ").set_prefixes(["section", "beta"]))
+        row_detector.add_option(RowDetectorOption().set_name("row").set_separator(" ").set_prefixes(["row"]))
         self.row_detector = row_detector
 
     def init_script_parser(self):
         script_parser = ScriptParser()
-        script_parser.add_line_parser_cfg(LineParserConfig().set_name("section").set_single().set_parser(SpareSectionParser()))
+        script_parser.add_line_parser_cfg(LineParserConfig().set_scope("section_alpha").set_name("section_alpha").set_single().set_parser(SpareSectionParser()))
+        script_parser.add_line_parser_cfg(LineParserConfig().set_scope("section_beta").set_name("section_beta").set_single().set_parser(SpareSectionParser()))
+        script_parser.add_line_parser_cfg(LineParserConfig().set_scope("_").set_name("row").set_multiple().set_parser(SpareRowParser()))
         self.script_parser = script_parser
 
-    def parse(self, content: str):
-        sections = content.split(self.separator)
+    def parse(self, refctx: ParsingContext, content: str):
         spareDoc = SpareDoc()
-        for section in sections:
-            lines = section.splitlines()
-            for line in lines:
-                ctx = ParsingContext().set_id("spare-parser").set_line_number(0)
-                name = self.row_detector.match(line)
-                if name is not None:
-                    typedobj = self.script_parser[name].parser.parse(ctx,line)
-                    spareDoc.section1.header1 = typedobj #hmmm
+        lines = content.splitlines()
+        scope = "?"
+        for idx, linecr in enumerate(lines):
+            line = linecr.strip()
+            ctx = ParsingContext().set_id(refctx.id).set_line_number(idx)
+            if len(line) == 0:
+                continue
+            if line.startswith(self.comment_prefix):
+                continue
+            if line.startswith(self.separator):
+                scope = "?"
+                continue
+            name = self.row_detector.match(line)
+            if name is None:
+                raise PersistenceParserError(ctx, name, line) 
+            line_parser_cfg = self.script_parser.line_parser_configs[name]
+            typedobj = line_parser_cfg.parser.parse(ctx,line)
+            if not (line_parser_cfg.scope == "_" ):
+                scope = line_parser_cfg.scope
+            if len(scope) <=1:
+                raise PersistenceParserError(ctx, name, line) 
+            
+            spareDoc[scope][line_parser_cfg.name] = typedobj #hmmm
         
     
