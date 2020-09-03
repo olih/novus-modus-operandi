@@ -363,7 +363,7 @@ class SpareDoc:
     def __init__(self):
         self.section_alpha = SpareDocSectionAlpha()
         self.section_beta = SpareDocSectionBeta()
-
+    
 class SpareParser:
     def __init__(self):
         self.separator = "--------"
@@ -407,8 +407,17 @@ class SpareParser:
             if not (line_parser_cfg.scope == "_" ):
                 scope = line_parser_cfg.scope
             if len(scope) <=1:
+                raise PersistenceParserError(ctx, name, line)
+            if scope == 'section_alpha':
+                if name == 'section_alpha':
+                    spareDoc.section_alpha.header1 = typedobj
+                elif name == 'row':
+                    spareDoc.section_alpha.rows.append(typedobj)
+            elif scope == 'section_beta':
+                if name == 'section_beta':
+                    spareDoc.section_beta.header1 = typedobj
+                elif name == 'row':
+                    spareDoc.section_beta.rows.append(typedobj)
+            else:
                 raise PersistenceParserError(ctx, name, line) 
-            
-            spareDoc[scope][line_parser_cfg.name] = typedobj #hmmm
-        
     
