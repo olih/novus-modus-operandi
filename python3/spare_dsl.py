@@ -465,7 +465,7 @@ class SpareParser:
                 raise PersistenceParserError(ctx, name, line)
             if scope == 'section_alpha':
                 if name == 'section_alpha':
-                    spareDoc.section_alpha.header1 = typedobj
+                    spareDoc.section_alpha.header = typedobj
                 elif name == 'row':
                     spareDoc.section_alpha.rows.append(typedobj)
             elif scope == 'section_beta':
