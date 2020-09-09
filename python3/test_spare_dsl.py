@@ -1,7 +1,8 @@
 import unittest
-from random import randint, choice
+from random import randint, uniform, choice
+from fractions import Fraction
 from typing import List, Tuple, Dict, Set, Optional
-from spare_dsl import SpareRow, SpareItem, SpareRowParser
+from spare_dsl import SpareRow, SpareItem, SpareRowParser, SpareSection, SpareSectionParser, SpareSectionType, SpareDoc, SpareParser
 from dsl_text import ParsingContext
 from examples import Examples
 import os
@@ -11,23 +12,63 @@ emailExamples = Examples().load("{}/examples/emails.ex.json".format(dir_path))
 urlExamples = Examples().load("{}/examples/urls.ex.json".format(dir_path))
 
 spareRowParser = SpareRowParser()
+spareSectionParser = SpareSectionParser()
+spareParser = SpareParser()
 ctx = ParsingContext().set_id("ctx7").set_line_number(27)
-class TestParsingSpareRow(unittest.TestCase):
 
-    def test_conversion_should_succeed(self):
+def rand_fract_str():
+    return str(Fraction(randint(0, 1000), randint(1, 1000)))
+
+def gen_row() -> SpareRow:
+    row =  SpareRow()
+    row.set_id("one")
+    row.set_v_int(randint(1, 1000))
+    row.set_tags(set(["monday", "tuesday"]))
+    row.set_emails(emailExamples.sample_valid(3))
+    row.set_url(urlExamples.pick_valid())
+    row.set_color_name_as_str("green")
+    row.set_items([SpareItem().set_v_float(uniform(1, 500)).set_v_fraction_as_str("1/4"), SpareItem().set_v_float(uniform(1, 500)).set_v_fraction_as_str("1/5")])
+    row.set_description("some description")
+    return row
+
+def gen_spare_doc()->SpareDoc:
+    spareDoc = SpareDoc()
+    spareDoc.section_alpha.set_header(SpareSection().set_section_type(SpareSectionType.ALPHA))
+    for _ in range(randint(1, 5)):
+        spareDoc.section_alpha.add_row(gen_row())
+    spareDoc.section_beta.set_header1(SpareSection().set_section_type(SpareSectionType.BETA))
+    for _ in range(randint(1, 5)):
+        spareDoc.section_beta.add_row(gen_row())
+    return spareDoc
+
+   
+
+class TestParsingSpareRow(unittest.TestCase):
+    
+    def test_convert_spare_section_should_succeed(self):
         examples = [
-            SpareRow()
-                .set_id("one")
-                .set_v_int(15)
-                .set_tags(set(["monday", "tuesday"]))
-                .set_emails(emailExamples.sample_valid(3))
-                .set_url(urlExamples.pick_valid())
-                .set_color_name_as_str("green")
-                .set_items([SpareItem().set_v_float(1.3).set_v_fraction_as_str("1/4"), SpareItem().set_v_float(1.7).set_v_fraction_as_str("1/5")])
-                .set_description("some description")
-            ]
+            SpareSection().set_section_type(SpareSectionType.ALPHA),
+            SpareSection().set_section_type(SpareSectionType.BETA)
+        ]
         for ex in examples:
-                line = ex.to_nmo_string()
-                spareRow = spareRowParser.parse(ctx, line)
-                with self.subTest(ex=ex):
-                    self.assertEqual(ex, spareRow)
+            line = ex.to_nmo_string()
+            spareSection = spareSectionParser.parse(ctx, line)
+            with self.subTest(ex=ex):
+                self.assertEqual(ex, spareSection)
+
+    def test_convert_spare_row_should_succeed(self):
+        examples = [ gen_row() for _ in range(5)]
+        for ex in examples:
+            line = ex.to_nmo_string()
+            spareRow = spareRowParser.parse(ctx, line)
+            with self.subTest(ex=ex):
+                self.assertEqual(ex, spareRow)
+
+
+    def test_convert_spare_doc_should_succeed(self):
+        examples = [ gen_spare_doc() for _ in range(5)]
+        for ex in examples:
+            filecontent = ex.to_nmo_string()
+            spareDoc = spareParser.parse(ctx, filecontent)
+            with self.subTest(ex=len(filecontent)):
+                self.assertEqual(ex.to_nmo_string_list(), spareDoc.to_nmo_string_list())

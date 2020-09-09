@@ -149,6 +149,15 @@ class SpareSection:
         return " ".join([
             "section_type", str(self.section_type)
         ])
+    
+    def __str__(self):
+        return self.to_string()
+    
+    def __repr__(self):
+        return self.to_string()
+
+    def __eq__(self, other):
+            return self.to_string() == str(other)
 
     def to_nmo_string(self):
        return "section {}".format(
@@ -334,16 +343,31 @@ class SpareSectionParser(LineParser):
 
 class SpareDocSectionAlpha:
     def __init__(self):
-        self.header1 = SpareSection()
-        self.rows = []
+        self.header = SpareSection()
+        self.rows: List[SpareRow] = []
 
-    def set_header1(self, header: SpareSection):
-        self.header1 = header
+    def set_header(self, header: SpareSection):
+        self.header = header
         return self
 
     def add_row(self, row: SpareRow):
         self.rows.append(row)
         return self
+
+    def to_nmo_string_list(self)->List[str]:
+       return [self.header.to_nmo_string()] + [ row.to_nmo_string() for row in self.rows]
+    
+    def to_string(self):
+        return "\n".join(self.to_nmo_string_list())
+
+    def __str__(self):
+        return self.to_string()
+    
+    def __repr__(self):
+        return self.to_string()
+
+    def __eq__(self, other):
+            return self.to_string() == str(other)
 
 class SpareDocSectionBeta:
     def __init__(self):
@@ -358,12 +382,43 @@ class SpareDocSectionBeta:
         self.rows.append(row)
         return self
 
+    def to_nmo_string_list(self)->List[str]:
+       return [self.header1.to_nmo_string()] + [ row.to_nmo_string() for row in self.rows]
+
+    def to_string(self):
+        return "\n".join(self.to_nmo_string_list())
+
+    def __str__(self):
+        return self.to_string()
+    
+    def __repr__(self):
+        return self.to_string()
+
+    def __eq__(self, other):
+            return self.to_string() == str(other)
 
 class SpareDoc:
     def __init__(self):
+        self.separator = "--------"
         self.section_alpha = SpareDocSectionAlpha()
         self.section_beta = SpareDocSectionBeta()
+
+    def to_nmo_string_list(self)->List[str]:
+       return self.section_alpha.to_nmo_string_list()+[self.separator]+self.section_beta.to_nmo_string_list()
     
+    def to_nmo_string(self)->str:
+        return "\n".join(self.to_nmo_string_list())
+
+    def __str__(self):
+        return self.to_nmo_string()
+    
+    def __repr__(self):
+        return self.to_nmo_string()
+
+    def __eq__(self, other):
+            return self.to_nmo_string() == other.to_nmo_string()
+
+
 class SpareParser:
     def __init__(self):
         self.separator = "--------"
@@ -385,7 +440,7 @@ class SpareParser:
         script_parser.add_line_parser_cfg(LineParserConfig().set_scope("_").set_name("row").set_multiple().set_parser(SpareRowParser()))
         self.script_parser = script_parser
 
-    def parse(self, refctx: ParsingContext, content: str):
+    def parse(self, refctx: ParsingContext, content: str)->SpareDoc:
         spareDoc = SpareDoc()
         lines = content.splitlines()
         scope = "?"
@@ -419,5 +474,6 @@ class SpareParser:
                 elif name == 'row':
                     spareDoc.section_beta.rows.append(typedobj)
             else:
-                raise PersistenceParserError(ctx, name, line) 
+                raise PersistenceParserError(ctx, name, line)
+        return spareDoc
     
