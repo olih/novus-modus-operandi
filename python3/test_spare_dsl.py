@@ -34,10 +34,10 @@ def gen_row() -> SpareRow:
 def gen_spare_doc()->SpareDoc:
     spareDoc = SpareDoc()
     spareDoc.section_alpha.set_header(SpareSection().set_section_type(SpareSectionType.ALPHA))
-    for _ in range(randint(1, 5)):
+    for _ in range(randint(1, 9)):
         spareDoc.section_alpha.add_row(gen_row())
     spareDoc.section_beta.set_header1(SpareSection().set_section_type(SpareSectionType.BETA))
-    for _ in range(randint(1, 5)):
+    for _ in range(randint(0, 3)):
         spareDoc.section_beta.add_row(gen_row())
     return spareDoc
 
@@ -66,7 +66,7 @@ class TestParsingSpareRow(unittest.TestCase):
 
 
     def test_convert_spare_doc_should_succeed(self):
-        examples = [ gen_spare_doc() for _ in range(5)]
+        examples = [ gen_spare_doc() for _ in range(12)]
         for ex in examples:
             filecontent = ex.to_nmo_string()
             spareDoc = spareParser.parse(ctx, filecontent)
