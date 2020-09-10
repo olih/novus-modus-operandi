@@ -4,14 +4,15 @@ id-urn: company/project/example123
 section fragments
 fragment numeric enum constraints [ ] values [ randint randfraction ] -> description
 fragment number-constraints enum constraints [ separator coma ] values [ < _ <, < _ <=, <= _ <, <= _ <=, _ != ] -> description
-fragment list-constraints enum constraints [ ] values [ min-items max-items ] -> description
 fragment number-reducer enum constraints [ ] values [ step periodic ] -> description
 fragment localid idstring constraints [ key || maxlength 30  || first-char-exp az || rest-char-exp (az 09 - )]  -> description
 
 --------
 section chunks
 
-chunk constraints-num constraints [ separator space ] expr [ number-constraints | list-constraints | number-reducer ] -> number constraint
+chunk constraints-num constraints [ separator space ] expr [ number-constraints | number-reducer ] -> number constraint
 chunk constraints-level-num constraints [ separator double-pipe ] expr [ constraints-num ] -> constraints for a given level: common -> rare
-chunk fragment-enum constraints [ line-instruction || separator space ] expr [ randrange localid numeric open-bracket constraints-level-num close-bracket ] -> gen list for common to rare
+chunk randnumber constraints [ line-instruction || separator space ] expr [ randrange localid numeric open-bracket constraints-level-num close-bracket ] -> gen list for common to rare
+
+chunk circular-list  constraints [ line-instruction || separator space ] expr [ circlist localid rand localid minitems int maxitems int] -> some description
 
