@@ -32,6 +32,13 @@ def find_class(classname: str):
                 return body
     return None
 
+def find_method(classDef: ClassDef, methodname: str):
+    for body in classDef.body:
+        if isinstance(body, FunctionDef) is True:
+            if (body.name == methodname):
+                return body
+    return None
+
 def find_assigns(node):
     return [n for n in node if isinstance(n, Assign) is True]
 
@@ -56,6 +63,9 @@ def alter_name_assigmnent( assignment: Assign, newname: str):
 def generate_enum(config: GenEnumConfig)->str:
     newclass = find_class("ColorName")
     newclass.name = config.name
+    from_nmo_string = find_method(newclass, "from_nmo_string")
+    to_nmo_string = find_method(newclass, "to_nmo_string")
+    print_types(to_nmo_string)
     assigments = find_assigns(newclass.body)
     new_assignments = [ alter_name_assigmnent(assigments[0], name) for name in config.get_values_as_const()]
     del(newclass.body[1])
