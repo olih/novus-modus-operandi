@@ -1,3 +1,12 @@
+from typing import List, Tuple, Dict, Set, Optional
+from fractions import Fraction
+from enum import Enum, auto
+from dsl_text import SequenceConfig, SequencePersistence, RegExpConfig, RegExpPersistence, IntegerConfig, IntegerPersistence, BriefAnswer
+from dsl_text import FloatConfig, FloatPersistence, FractionConfig, FractionPersistence, EnumConfig, EnumPersistence
+from dsl_text import PersistenceSequence, PersistenceParserError, ParsingContext, BasePersistence
+from dsl_text import RowDetectorOption, RowDetector, LineParser, LineParserConfig, ScriptParser
+
+
 class MyFormatter:
 
     def __init__(self):
@@ -39,3 +48,27 @@ class MyFormatter:
 
     def from_items(self, values: List[str]) ->str:
         return self.items.to_csv_string(values)
+
+
+class MyEnum(Enum):
+    RED = auto()
+    GREEN = auto()
+    NOT_SUPPORTED = auto()
+
+    @classmethod
+    def from_nmo_string(cls, value: str):
+        if value == 'red':
+            return ColorName.RED
+        elif value == 'green':
+            return ColorName.GREEN
+        else:
+            return ColorName.NOT_SUPPORTED
+
+    @classmethod
+    def to_nmo_string(cls, value):
+        if value == ColorName.RED:
+            return 'red'
+        elif value == ColorName.GREEN:
+            return 'green'
+        else:
+            return 'E'
