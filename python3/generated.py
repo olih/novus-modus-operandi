@@ -51,8 +51,8 @@ class MyFormatter:
 
 
 class MyEnum(Enum):
-    RED = auto()
-    GREEN = auto()
+    RANDFRACTION = auto()
+    RANDINT = auto()
     NOT_SUPPORTED = auto()
 
     @classmethod
