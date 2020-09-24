@@ -51,6 +51,7 @@ class MyFormatter:
 
 
 class MyEnum(Enum):
+    RANDFLOAT = auto()
     RANDFRACTION = auto()
     RANDINT = auto()
     NOT_SUPPORTED = auto()
