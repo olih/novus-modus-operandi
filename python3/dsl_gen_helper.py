@@ -2,9 +2,12 @@ from typing import List, Tuple, Dict, Set, Optional, Union
 import re
 
 non_alpha_pattern = re.compile("[^A-Za-z0-9]+")
+
 def to_constant_str(value: str)->str:
     return non_alpha_pattern.sub(value, "_").upper()
 
+def to_const_and_value(value: str)->Tuple[str]:
+    return (to_constant_str(value), value)
 
 class GenBase:
     def get_name(self)->str:
@@ -25,6 +28,9 @@ class GenEnumConfig(GenBase):
 
     def get_values_as_const(self)->List[str]:
         return map(to_constant_str, self.values)
+    
+    def get_values_as_const_and_val(self)->List[Tuple[str]]:
+        return map(to_const_and_value, self.values)
 
 
     

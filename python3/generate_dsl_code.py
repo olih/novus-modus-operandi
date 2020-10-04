@@ -95,17 +95,19 @@ def gen_if_enum(classname: str, enumvalue: str, str_return: str, otherwise):
 
 def gen_ifs_enum(classname: str, enum_and_value_list: List[Tuple[str]], otherwise: str):
     elsewise = new_return_str(otherwise)
-    ev = enum_and_value_list[0]
-    return gen_if_enum(classname, ev[0], ev[1], elsewise)
+    result = elsewise
+    for ev in sorted(enum_and_value_list):
+        result = gen_if_enum(classname, ev[0], ev[1], result)
+    return result
 
 def generate_enum(config: GenEnumConfig)->str:
     newclass = find_class("ColorName")
     newclass.name = config.name
     from_nmo_string = find_method(newclass, "from_nmo_string")
     to_nmo_string = find_method(newclass, "to_nmo_string")
-    body_to_nmo_string = gen_ifs_enum("MyEnum2", [("Orange", "orange"), ("Blue", "blue")], "E")
+    body_to_nmo_string = gen_ifs_enum(config.name, config.get_values_as_const_and_val(), "E")
     print(to_string(body_to_nmo_string))
-    # to_nmo_string.body[0] = body_to_nmo_string
+    to_nmo_string.body[0] = body_to_nmo_string
     assigments = find_assigns(newclass.body)
     new_assignments = [ alter_name_assigmnent(assigments[0], name) for name in config.get_values_as_const()]
     del(newclass.body[1])
