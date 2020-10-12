@@ -86,9 +86,19 @@ def new_str(value: str):
 def new_return_str(value: str):
     return Return(new_str(value))
 
+def new_return_attr(classname: str, enumvalue: str):
+    return Return(new_attribute(classname, enumvalue))
+
 def gen_if_enum(classname: str, enumvalue: str, str_return: str, otherwise):
     test = new_compare_value_equal(new_attribute(classname, enumvalue))
     body = [new_return_str(str_return)]
+    orelse = [otherwise]
+    newif = If(test, body, orelse)
+    return newif
+
+def gen_rev_if_enum(classname: str, enumvalue: str, str_value: str, otherwise):
+    test = new_compare_value_equal(new_str(str_value))
+    body = [new_return_attr(classname,enumvalue )]
     orelse = [otherwise]
     newif = If(test, body, orelse)
     return newif
@@ -100,14 +110,22 @@ def gen_ifs_enum(classname: str, enum_and_value_list: List[Tuple[str]], otherwis
         result = gen_if_enum(classname, ev[0], ev[1], result)
     return result
 
+def gen_rev_ifs_enum(classname: str, enum_and_value_list: List[Tuple[str]], otherwise: str):
+    elsewise = new_return_attr(classname, otherwise)
+    result = elsewise
+    for ev in sorted(enum_and_value_list):
+        result = gen_rev_if_enum(classname, ev[0], ev[1], result)
+    return result
+
 def generate_enum(config: GenEnumConfig)->str:
     newclass = find_class("ColorName")
     newclass.name = config.name
     from_nmo_string = find_method(newclass, "from_nmo_string")
     to_nmo_string = find_method(newclass, "to_nmo_string")
+    body_from_nmo_string = gen_rev_ifs_enum(config.name, config.get_values_as_const_and_val(), "NOT_SUPPORTED")
     body_to_nmo_string = gen_ifs_enum(config.name, config.get_values_as_const_and_val(), "E")
-    print(to_string(body_to_nmo_string))
     to_nmo_string.body[0] = body_to_nmo_string
+    from_nmo_string.body[0] = body_from_nmo_string
     assigments = find_assigns(newclass.body)
     new_assignments = [ alter_name_assigmnent(assigments[0], name) for name in config.get_values_as_const()]
     del(newclass.body[1])

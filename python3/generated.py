@@ -58,12 +58,14 @@ class MyEnum(Enum):
 
     @classmethod
     def from_nmo_string(cls, value: str):
-        if value == 'red':
-            return ColorName.RED
-        elif value == 'green':
-            return ColorName.GREEN
+        if value == 'randint':
+            return MyEnum.RANDINT
+        elif value == 'randfraction':
+            return MyEnum.RANDFRACTION
+        elif value == 'randfloat':
+            return MyEnum.RANDFLOAT
         else:
-            return ColorName.NOT_SUPPORTED
+            return MyEnum.NOT_SUPPORTED
 
     @classmethod
     def to_nmo_string(cls, value):
